@@ -1,190 +1,9 @@
-<!doctype html>
-<html lang="zh-Hant">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>科系羅盤｜12 到 20 題找到適合你的大學科系</title>
-<meta name="description" content="科系羅盤測試版：用 12 到 20 題自適應問答，找出適合你的大學學群與科系，並可填入模擬考級分查看校系落點。">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
-<style>
-/* 科系羅盤上線版：沿用明慧教育官網的設計語言（藏青、橘金、米白、直角、襯線標題、左側色條） */
-:root{
-  --bg:#f7f5f0; --surface:#ffffff; --ink:#0b0a3f; --ink2:#1c1b62; --muted:#5a5a7a; --line:#ddd8ce; --line2:#ede9e3;
-  --accent:#e89027; --accent-l:#f5b45e; --accent-soft:#e890271f; --accent-text:#9a5a0c;
-  --bad:#b4233c; --bad-soft:#b4233c14;
-  --font-body:"Noto Sans TC",ui-sans-serif,system-ui,"PingFang TC","Microsoft JhengHei",sans-serif;
-  --font-serif:"Libre Baskerville","Noto Sans TC",Georgia,serif;
-  --font-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
-  color-scheme:light;
-}
-*{box-sizing:border-box}
-html,body{margin:0}
-[hidden]{display:none!important}
-img{max-width:100%}
-html,body{margin:0}
-[hidden]{display:none!important}
-img{max-width:100%}
-body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.7}
-h1,h2,h3{font-family:var(--font-serif);text-wrap:balance;margin:0;line-height:1.35;letter-spacing:.02em}
-p{margin:0}
-.muted{color:var(--muted)}
-.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
-button{font:inherit;cursor:pointer;color:inherit}
-:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+// 科系羅盤測驗引擎（由 build_site.py 從科系羅盤上線版自動產生，請勿手改）
+/* eslint-disable */
+export function mountQuiz(app){
+const byId=id=>app.querySelector('#'+CSS.escape(id));
+const toTop=()=>{const y=app.getBoundingClientRect().top+window.scrollY-90; if(window.scrollY>y) window.scrollTo(0,Math.max(0,y));};
 
-/* 頂部：漸層線與站名列 */
-.topbar{height:4px;background:linear-gradient(90deg,var(--ink),var(--ink2) 40%,var(--accent))}
-header.site{background:var(--surface);border-bottom:1px solid var(--line2);box-shadow:0 2px 10px rgba(11,10,63,.05)}
-.site-in{max-width:980px;margin:0 auto;padding-block:14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.mh{display:grid;text-decoration:none;color:var(--ink);font-weight:900;font-size:1.15rem;letter-spacing:.08em;line-height:1.25}
-.mh small{font-size:.6rem;letter-spacing:.2em;color:var(--accent);font-weight:700}
-.tag{font-size:.75rem;letter-spacing:.14em;color:var(--muted);border:1px solid var(--line);padding:3px 10px}
-
-.wrap{max-width:980px;margin:0 auto;padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:24px}
-.eyebrow{display:flex;align-items:center;gap:12px;font-size:.75rem;font-weight:600;letter-spacing:.2em;color:var(--accent)}
-.eyebrow::before{content:"";width:40px;height:1px;background:var(--accent);flex:none}
-
-/* 開始頁：藏青大區塊 */
-.intro{background-color:var(--ink);background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1px);background-size:22px 22px;color:#fff;padding:48px clamp(20px,5vw,56px);display:grid;gap:24px}
-.intro h1{font-size:clamp(1.9rem,5vw,2.8rem);font-weight:700;color:#fff}
-.intro h1 em{display:block;font-style:italic;color:var(--accent-l)}
-.intro .rule{width:96px;height:2px;background:linear-gradient(90deg,var(--accent),transparent)}
-.intro .lead{max-width:36em;color:rgba(255,255,255,.75);font-size:1.02rem}
-.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-.fact{border-top:1px solid rgba(255,255,255,.25);padding-top:10px}
-.fact b{display:block;font-family:var(--font-serif);font-size:1.7rem;color:var(--accent-l);font-weight:700}
-.fact span{font-size:.88rem;color:rgba(255,255,255,.72)}
-.types{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.type{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);padding:14px 16px;font-size:.88rem;color:rgba(255,255,255,.75);min-width:0}
-.type b{display:block;color:#fff;margin-bottom:2px}
-.intro .note{color:rgba(255,255,255,.6)}
-
-.btn{background:var(--accent);color:var(--ink);border:0;padding:14px 32px;font-weight:600;letter-spacing:.03em;font-size:1rem;justify-self:start;transition:background .2s}
-.btn:hover{background:var(--accent-l)}
-.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
-.btn.ghost:hover{background:var(--ink);color:#fff}
-.btn[disabled]{opacity:.45;cursor:not-allowed}
-.note{font-size:.82rem;color:var(--muted)}
-
-/* 作答 */
-.quiz{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
-.qcard{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--ink);padding:28px clamp(18px,3.5vw,36px);display:grid;gap:22px;min-width:0}
-.qmeta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:.85rem;color:var(--muted)}
-.qmeta .mono{color:var(--ink);font-weight:600}
-.progress{height:3px;background:var(--line2);overflow:hidden}
-.progress i{display:block;height:100%;background:var(--accent);transition:width .3s}
-.qkind{font-size:.75rem;letter-spacing:.2em;color:var(--accent);font-weight:600}
-.qtext{font-family:var(--font-serif);font-size:clamp(1.2rem,3vw,1.5rem);font-weight:700;line-height:1.55}
-.qfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;padding:4px 0;font-size:.9rem}
-.linkbtn:disabled{opacity:.35;cursor:default}
-.fc{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:stretch}
-.opt{background:var(--bg);border:1px solid var(--line);border-left:4px solid var(--line);padding:16px 18px;text-align:left;display:grid;gap:6px;align-content:start;font-size:1.02rem;line-height:1.55;min-width:0;transition:border-color .15s,background .15s}
-.opt .k{font-family:var(--font-serif);font-style:italic;font-weight:700;color:var(--accent);font-size:1.05rem}
-.opt:hover{border-color:var(--ink);border-left-color:var(--accent);background:var(--surface)}
-.opt.on{border-color:var(--ink);border-left-color:var(--accent);background:var(--accent-soft)}
-/* 所有題型的選項統一直排，一個選項一行 */
-.choices{display:grid;gap:10px}
-.choices .opt{grid-template-columns:1.8em minmax(0,1fr);align-items:center;gap:12px;padding:14px 18px}
-.choices .opt-mid{font-size:.92rem;color:var(--muted);background:transparent}
-.choices .opt-mid .k{color:var(--muted)}
-.mid{background:none;border:1px dashed var(--line);padding:8px 12px;font-size:.82rem;color:var(--muted);white-space:nowrap}
-.mid:hover,.mid.on{border-color:var(--ink);color:var(--ink)}
-.yn{display:flex;gap:12px;flex-wrap:wrap}
-.yn .opt{flex:1 1 140px;text-align:center;justify-items:center;font-weight:700}
-.subj-block{display:grid;gap:10px}
-.subj-block h3{font-family:var(--font-body);font-size:.95rem;font-weight:700}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{background:var(--bg);border:1px solid var(--line);padding:7px 14px;font-size:.92rem}
-.chip:hover{border-color:var(--ink)}
-.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
-.chip.weak.on{background:var(--accent);border-color:var(--accent);color:var(--ink)}
-.chip:disabled{opacity:.35;cursor:not-allowed}
-
-.rail{background:var(--surface);border:1px solid var(--line);padding:18px;display:grid;gap:12px;min-width:0}
-.rail h3{font-size:1rem}
-.rail .why{font-size:.8rem;color:var(--muted)}
-.bars{display:grid;gap:8px}
-.bar{display:grid;grid-template-columns:5.5em minmax(0,1fr) 3.4em;gap:8px;align-items:center;font-size:.85rem}
-.bar .track{height:6px;background:var(--line2);overflow:hidden}
-.bar .track i{display:block;height:100%;background:var(--ink2);transition:width .35s}
-.bar .v{text-align:right;font-family:var(--font-mono);font-size:.78rem;color:var(--muted)}
-.bar.lead .track i{background:var(--accent)}
-.out{font-size:.8rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:10px}
-
-/* 結果 */
-.rhead{display:grid;gap:8px}
-.rhead h1{font-size:clamp(1.6rem,4vw,2.2rem);font-weight:700}
-.cards{display:grid;gap:14px}
-.card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--ink2);padding:24px clamp(16px,3vw,30px);display:grid;gap:14px}
-.card.first{border-left-color:var(--accent);box-shadow:0 6px 20px rgba(11,10,63,.06)}
-.chead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
-.rank{font-family:var(--font-serif);font-style:italic;font-weight:700;color:var(--accent);font-size:1.35rem}
-.chead h2{font-size:1.35rem}
-.level{margin-left:auto;font-size:.78rem;font-weight:600;letter-spacing:.06em;padding:2px 12px;border:1px solid var(--line);color:var(--muted)}
-.level.hi{background:var(--ink);border-color:var(--ink);color:#fff}
-.reason{font-size:.95rem}
-.depts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
-.dept{background:var(--bg);border-left:3px solid var(--line);padding:10px 14px;min-width:0}
-.dept b{display:block;font-size:.95rem}
-.schools{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:5px}
-.schools li{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.88rem;color:var(--muted)}
-.schools li span:first-child{min-width:0}
-.why-std{display:block;font-size:.76rem;color:var(--bad);line-height:1.4}
-.pl{flex:none;font-size:.74rem;font-weight:600;padding:1px 9px;white-space:nowrap;border:1px solid transparent}
-.pl-safe{background:var(--ink);color:#fff}
-.pl-try{background:var(--accent-soft);color:var(--accent-text);border-color:var(--accent-l)}
-.pl-near{background:transparent;color:var(--accent-text);border:1px dashed var(--accent)}
-.pl-hard{background:var(--bad-soft);color:var(--bad)}
-.pl-art{background:transparent;color:var(--muted);border-color:var(--line)}
-.others{font-size:.95rem}
-
-.scores{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--accent);padding:22px clamp(16px,3vw,30px);display:grid;gap:14px}
-.scores h2{font-size:1.2rem}
-.scores-head{display:grid;gap:6px}
-.score-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;align-items:end}
-.score-grid label{display:grid;gap:4px;font-size:.85rem;font-weight:700}
-.score-grid select{font:inherit;font-family:var(--font-mono);padding:8px;border:1px solid var(--line);border-radius:0;background:var(--bg);color:var(--ink)}
-.score-grid .btn{justify-self:stretch;padding:10px 14px}
-.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:6px 16px;font-size:.82rem;color:var(--muted)}
-.legend div{display:flex;align-items:center;gap:8px}
-
-.paid{background-color:var(--ink);background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:22px 22px;color:#fff;padding:28px clamp(18px,3.5vw,36px);display:grid;gap:12px}
-.paid h2{font-size:1.2rem;color:#fff}
-.paid ul{margin:0;padding-left:1.2em;display:grid;gap:4px;color:rgba(255,255,255,.8)}
-.paid li::marker{color:var(--accent)}
-.paid .note{color:var(--accent-l)}
-
-details.algo{background:var(--surface);border:1px solid var(--line);padding:14px 20px}
-details.algo summary{cursor:pointer;font-weight:700}
-.algo-body{display:grid;gap:16px;margin-top:14px}
-.log{width:100%;border-collapse:collapse;font-size:.85rem}
-.log th,.log td{border-bottom:1px solid var(--line2);padding:6px 8px;text-align:left;vertical-align:top}
-.log td.mono{white-space:nowrap}
-.tablewrap{overflow-x:auto}
-
-@media (max-width:760px){
-  .quiz{grid-template-columns:minmax(0,1fr)}
-  .facts,.types{grid-template-columns:minmax(0,1fr)}
-  .fc{grid-template-columns:minmax(0,1fr)}
-  .mid{max-width:none}
-  .intro{padding:36px 20px}
-}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
-
-[hidden]{display:none!important}
-</style>
-</head>
-<body>
-<div class="topbar"></div>
-<header class="site"><div class="site-in"><a class="mh" href="https://www.minghuiedu.com/">明慧教育<small>MINGHUI EDUCATION</small></a><span class="tag">科系羅盤 · 測試版</span></div></header>
-<div class="wrap">
-  <main id="app"></main>
-</div>
-
-<script>
 /* ---------- 面向 ---------- */
 const DIMS={M:"數學推理",R:"理論探究",T:"實作建造",I:"程式資訊",B:"生物自然",H:"醫療照護",E:"地球環境",P:"傾聽助人",D:"教學解說",
   L:"閱讀寫作",X:"外語文化",G:"歷史哲思",A:"藝術表現",V:"空間設計",C:"領導經營",F:"財務數字",S:"法律公共",N:"傳播表達",K:"運動休閒"};
@@ -695,7 +514,7 @@ function userDims(ans){
 
 /* ---------- 畫面 ---------- */
 let answers=[], lastSubj={strong:[],weak:[]}, lock=false;
-const app=document.getElementById("app");
+
 const ranked=p=>p.map((v,i)=>({i,v})).sort((a,b)=>b.v-a.v);
 const pct=v=>(v*100).toFixed(v<0.1?1:0)+"%";
 const short=n=>n.replace("學群","");
@@ -720,7 +539,7 @@ function renderIntro(){
     <button class="btn" id="start">開始測驗</button>
     <p class="note">目前為測試版，題目仍在持續調整，結果僅供參考，不能取代專業的升學諮詢。作答內容和成績只在你的瀏覽器裡計算，不會上傳或儲存。</p>
   </section>`;
-  document.getElementById("start").onclick=()=>{answers=[];lastSubj={strong:[],weak:[]};renderStep();};
+  byId("start").onclick=()=>{answers=[];lastSubj={strong:[],weak:[]};renderStep();};
 }
 
 function railHTML(post){
@@ -760,7 +579,7 @@ function renderSubjects(){
       strong=strong.includes(i)?strong.filter(x=>x!==i):[...strong,i].slice(-2);draw();});
     app.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{const i=+b.dataset.w;
       weak=weak.includes(i)?[]:[i];draw();});
-    document.getElementById("next").onclick=()=>{lastSubj={strong,weak};answers=[{type:"subj",strong,weak}];renderStep();};
+    byId("next").onclick=()=>{lastSubj={strong,weak};answers=[{type:"subj",strong,weak}];renderStep();};
   };
   draw();
 }
@@ -787,16 +606,18 @@ function renderQuestion(){
     app.innerHTML=shell(n,gain,"做過的事",body,"照實際情況回答。鍵盤 1 是有，2 是沒有");
   }
   app.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>answer(nxt.i,+b.dataset.a,b));
-  document.getElementById("back").onclick=()=>{answers.pop();renderStep();};
+  byId("back").onclick=()=>{answers.pop();renderStep();};
 }
 function answer(i,a,el){
   if(lock) return; lock=true; el.classList.add("on");
   setTimeout(()=>{answers.push({type:"q",i,a});lock=false;renderStep();},180);
 }
-document.addEventListener("keydown",e=>{
+const onKey=e=>{
   if(!/^[1-3]$/.test(e.key)) return;
-  const b=document.getElementById("opt"+e.key); if(b) b.click();
-});
+  const t=e.target; if(t&&/^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName)) return;
+  const b=byId("opt"+e.key); if(b) b.click();
+};
+document.addEventListener("keydown",onKey);
 
 function reasonFor(gi,ud){
   const g=GROUPS[gi];
@@ -883,18 +704,18 @@ function renderResult(){
     </div>
     <p class="note">測試版目前收錄 29 所大學的相關校系：國立 17 所（臺大、政大、師大、成大、清大、陽明交大、中興、中央、中山、臺北大學、中正、海洋、彰師、高師、高雄大學、臺北教育大學、臺中教育大學），私立 12 所（臺北醫學、高雄醫學、中國醫藥、中山醫學、長庚、輔仁、東吳、淡江、中原、逢甲、元智、東海）。檢定標準與篩選門檻取自大學甄選入學委員會公告的 115 學年度個人申請資料，五標取自大考中心公告，正式資訊以甄選會及各校公告為準。藝術、體育類校系以術科成績篩選，無法用學測估算。結果僅供參考。</p>
   </section>`;
-  document.getElementById("scoreForm").onsubmit=e=>{
+  byId("scoreForm").onsubmit=e=>{
     e.preventDefault();
-    const sc={};SUBJ_KEYS.forEach(k=>{const v=document.getElementById("sc-"+k).value;sc[k]=v===""?null:+v;});
-    sc.聽=document.getElementById("sc-聽").value||null;
+    const sc={};SUBJ_KEYS.forEach(k=>{const v=byId("sc-"+k).value;sc[k]=v===""?null:+v;});
+    sc.聽=byId("sc-聽").value||null;
     scores=SUBJ_KEYS.some(k=>sc[k]!==null)?sc:null;
     renderResult();
-    const c=document.getElementById("cards"); if(c) c.scrollIntoView({behavior:"smooth",block:"start"});
+    const c=byId("cards"); if(c) c.scrollIntoView({behavior:"smooth",block:"start"});
   };
-  document.getElementById("again").onclick=()=>{answers=[];scores=null;renderIntro();window.scrollTo(0,0);};
-  document.getElementById("backq").onclick=()=>{answers.pop();renderStep();window.scrollTo(0,0);};
+  byId("again").onclick=()=>{answers=[];scores=null;renderIntro();toTop();};
+  byId("backq").onclick=()=>{answers.pop();renderStep();toTop();};
 }
+
 renderIntro();
-</script>
-</body>
-</html>
+return ()=>{document.removeEventListener("keydown",onKey);app.innerHTML="";};
+}

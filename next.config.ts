@@ -36,13 +36,6 @@ const nextConfig: NextConfig = {
       { source: '/%E9%97%9C%E6%96%BC%E6%88%91%E5%80%91/', destination: '/about', permanent: true },
     ];
   },
-  async rewrites() {
-    return [
-      // 科系測驗（靜態頁，放在 public/major-quiz/index.html）
-      { source: '/major-quiz', destination: '/major-quiz/index.html' },
-      { source: '/major-quiz/', destination: '/major-quiz/index.html' },
-    ];
-  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'cdn.sanity.io' },
