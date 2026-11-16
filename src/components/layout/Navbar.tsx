@@ -11,6 +11,7 @@ const navItems = [
   { href: '/tutor', label: '專業家教' },
   { href: '/notes', label: '高分筆記' },
   { href: '/exploration', label: '科系探索' },
+  { href: '/major-quiz', label: '科系測驗' },
   { href: '/overseas', label: '海外遊學' },
   { href: '/thesis', label: '論文顧問' },
 ];
