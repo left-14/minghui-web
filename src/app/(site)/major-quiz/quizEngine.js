@@ -633,6 +633,25 @@ function answerText(r){
   return ["做過的事",it.t,r.a===0?"有":"沒有"];
 }
 
+/* 免費版每個學類只列 3 校：
+   1. 湊得齊就列「夢幻＋可以拚＋穩上」各一校。夢幻＝差一點（排最前面的一校）；沒有差一點才用偏難裡差距最小的。
+   2. 湊不齊時：沒有任何高攀的學校（全部都穩過或可以拚）＝分數很高，列 3 所穩過，不夠再補可以拚。
+   3. 其他情況列 3 所可以拚，不夠依序補差一點、穩過、偏難，最後才補未達檢定、缺考科、看術科。
+   同一類裡依資料原本的順序（大致是學校排名）挑前面的。 */
+function pick3(list,sc){
+  const all=list.map(([sch,steps],i)=>({sch,i,pl:placement(steps,sc,sch)}));
+  const by=c=>all.filter(x=>x.pl.cat===c);
+  const safe=by("safe"),tr=by("try"),near=by("near"),hard=by("hard").sort((a,b)=>b.pl.d-a.pl.d);
+  const dream=near[0]||hard[0];
+  if(dream&&tr.length&&safe.length)
+    return [{...dream,role:"夢幻"},{...tr[0],role:"可以拚"},{...safe[0],role:"穩上"}];
+  const order=(!near.length&&!hard.length&&safe.length)
+    ?[safe,tr,by("std"),by("miss"),by("art")]
+    :[tr,near,safe,hard,by("std"),by("miss"),by("art")];
+  const out=[];
+  for(const grp of order) for(const x of grp){ if(out.length<3&&!out.includes(x)) out.push(x); }
+  return out.sort((a,b)=>a.i-b.i).map(x=>({...x,role:""}));
+}
 function renderResult(){
   const post=posterior(answers), r=ranked(post), ud=userDims(answers), top=r[0].v;
   const conf=top>=STOP_P?"結果相當明確":(top>=0.4?"結果有方向，但前幾名差距不大":"你的興趣分布很平均，前幾名都值得看看");
@@ -641,11 +660,14 @@ function renderResult(){
     <article class="card${k===0?" first":""}">
       <div class="chead"><span class="rank">No.${k+1}</span><h2>${g.n}</h2><span class="level ${c}">${t}</span></div>
       <p class="reason">${reasonFor(x.i,ud)}</p>
-      <div class="depts">${g.d.map(([n,list])=>`<div class="dept"><b>${n}</b><ul class="schools">${list.map(([sch,steps])=>{
-        const pl=scores?placement(steps,scores,sch):(steps===null?{cat:"art"}:null);
-        const tag=pl?`<span class="pl ${CAT[pl.cat][1]}">${CAT[pl.cat][0]}</span>`:"";
-        const why=pl&&pl.cat==="std"?`<small class="why-std">${pl.fails.join("；")}</small>`:"";
-        return `<li><span>${sch}${why}</span>${tag}</li>`;}).join("")}</ul></div>`).join("")}</div>
+      <div class="depts">${g.d.map(([n,list])=>{
+        if(!scores) return `<div class="dept"><b>${n}</b><p class="more">填入模擬考成績後，會從收錄的 ${list.length} 校挑出夢幻、可以拚、穩上各一校。</p></div>`;
+        const picks=pick3(list,scores);
+        const rest=list.length-picks.length;
+        return `<div class="dept"><b>${n}</b><ul class="schools">${picks.map(({sch,pl,role})=>{
+          const tag=`<span class="pl ${CAT[pl.cat][1]}">${CAT[pl.cat][0]}</span>`;
+          const why=pl.cat==="std"?`<small class="why-std">${pl.fails.join("；")}</small>`:"";
+          return `<li><span>${role?`<em class="role">${role}</em>`:""}${sch}${why}</span>${tag}</li>`;}).join("")}</ul>${rest>0?`<p class="more">還有 ${rest} 校，完整報告推出後可看</p>`:""}</div>`;}).join("")}</div>
     </article>`;}).join("");
   const opt=k=>`<option value="">未考</option>`+Array.from({length:16},(_,v)=>`<option value="${v}"${scores&&scores[k]===v?" selected":""}>${v}</option>`).join("");
   const scorePanel=`

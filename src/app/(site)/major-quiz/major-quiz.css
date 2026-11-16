@@ -138,6 +138,8 @@
 @media (prefers-reduced-motion:reduce){
 .mq, .mq *{transition:none!important}
 }
+.mq .dept .more{font-size:.78rem;color:var(--muted);margin-top:6px;line-height:1.5}
+.mq .schools .role{font-style:normal;font-size:.72rem;font-weight:700;color:var(--accent-text);margin-right:6px}
 
 /* 官網整合 */
 .mq{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.7}
