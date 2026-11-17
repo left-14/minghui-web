@@ -432,7 +432,7 @@ export default function AboutPage() {
                 ga={{ category: 'media', label: item.outlet }}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="media-card group flex flex-col bg-white transition-shadow duration-200 hover:shadow-lg overflow-hidden"
+                className="media-card group flex flex-col bg-white card-lift overflow-hidden"
                 style={{ border: '1px solid var(--border)', borderTop: '3px solid var(--accent)' }}
               >
                 {/* Thumbnail */}

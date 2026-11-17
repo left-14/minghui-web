@@ -302,7 +302,7 @@ export default async function TutorPage() {
                 <Link
                   key={tutor.slug}
                   href={`/tutor/${tutor.slug}`}
-                  className="group bg-white p-6 flex flex-col transition-shadow duration-200 hover:shadow-lg relative"
+                  className="group bg-white p-6 flex flex-col card-lift relative"
                   style={{ border: '1px solid var(--border)' }}
                 >
                   {tutor.tier && tierConfig[tutor.tier] && (
