@@ -620,7 +620,25 @@ const MORE15={
  "建築與設計學群|跨領域設計":[["海洋海洋文創設計產業學士學位學程",["國文12"],"A------"]],
  "法政學群|法律":[["海洋海洋法政學士學位學程",["國文9","英文10"],"-AAA---"]],
 };
-for(const [key,list] of [...Object.entries(MORE),...Object.entries(MORE2),...Object.entries(MORE3),...Object.entries(MORE3b),...Object.entries(MORE3c),...Object.entries(MORE3d),...Object.entries(MORE4),...Object.entries(MORE5),...Object.entries(MORE6),...Object.entries(MORE7),...Object.entries(MORE8),...Object.entries(MORE9),...Object.entries(MORE10),...Object.entries(MORE11),...Object.entries(MORE12),...Object.entries(MORE13),...Object.entries(MORE14),...Object.entries(MORE15)]){
+/* ---------- 補齊：彰師 023、高師 022 ---------- */
+const MORE16={
+ "社會與心理學群|心理":[["彰師輔導與諮商(學校輔導與諮商組)",["國英數B社43","國文13"],"FF-AA--"],["彰師輔導與諮商(社區輔導與諮商組)",["國英數B社42","國文13"],"FF-AA--"]],
+ "數理化學群|物理":[["彰師物理(光電組)",["自然11","數學A12"],"--A--A-"]],
+ "工程學群|機械工程":[["彰師智慧車輛工程",["國英數A自37","數學A8","英文8","自然9"],"-AA--A-"],["彰師機電工程",["數學A10","自然12"],"AAA--A-"]],
+ "工程學群|電子與半導體":[["彰師電子工程",["國英數A自47","(英文+數學A+自然)36"],"-AA--A-"],["高師電子工程",["國英數A自45"],"-----A-"]],
+ "地球與環境學群|地理與環境資源":[["彰師地理",["數學B5","英文8","社會13"],"-A-AA--"],["高師地理",["英文6","國文12","社會13"],"A---A--"]],
+ "資訊學群|資訊管理":[["彰師資訊管理(數位內容科技與管理組)",["國英數B29","數學B9","英文11"],"-A-A---"]],
+ "教育學群|教育":[["彰師公共事務與公民教育(公民教育組)",["國英社35","英文10","社會13"],"----A--"],["高師工業科技教育(科技教育與訓練組)",["(英文+數學A+自然)27"],"--B--A-"],["高師工業科技教育(能源與冷凍空調組)",["(英文+數學A+自然)28"],"--B--A-"]],
+ "法政學群|公共行政":[["彰師公共事務與公民教育(公共事務組)",["國英社29","英文10","社會12"],"----A--"]],
+ "數理化學群|數學":[["高師數學(應用數學組)",["(英文+數學A+自然)31"],"--F----"]],
+ "建築與設計學群|工業設計":[["高師工業設計(B組)",["(國文+英文+自然)32"],"-ADD-A-"]],
+ "建築與設計學群|視覺傳達設計":[["高師視覺設計",null,"-------"]],
+ "資訊學群|資訊工程":[["高師軟體工程與管理(資安組)",["(國文+英文+數學A)24"],"--B----"]],
+ "藝術學群|美術":[["高師美術",null,"-------"]],
+ "藝術學群|音樂":[["高師音樂",null,"-------"]],
+ "遊憩與運動學群|體育":[["高師體育",null,"-------"]],
+};
+for(const [key,list] of [...Object.entries(MORE),...Object.entries(MORE2),...Object.entries(MORE3),...Object.entries(MORE3b),...Object.entries(MORE3c),...Object.entries(MORE3d),...Object.entries(MORE4),...Object.entries(MORE5),...Object.entries(MORE6),...Object.entries(MORE7),...Object.entries(MORE8),...Object.entries(MORE9),...Object.entries(MORE10),...Object.entries(MORE11),...Object.entries(MORE12),...Object.entries(MORE13),...Object.entries(MORE14),...Object.entries(MORE15),...Object.entries(MORE16)]){
   const [gn,dn]=key.split("|"), g=GROUPS.find(x=>x.n===gn);
   let d=g.d.find(x=>x[0]===dn); if(!d){d=[dn,[]]; g.d.push(d);}
   list.forEach(([name,steps,chk])=>{d[1].push([name,steps]); CHK[name]=chk;});
