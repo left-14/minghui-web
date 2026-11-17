@@ -1,4 +1,7 @@
 /* 科系羅盤測驗頁樣式（由 build_site.py 自動產生，所有規則都限定在 .mq 內） */
+@keyframes mqUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes mqInR{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:none}}
+@keyframes mqInL{from{opacity:0;transform:translateX(-32px)}to{opacity:1;transform:none}}
 .mq{
   --bg:#f7f5f0; --surface:#ffffff; --ink:#0b0a3f; --ink2:#1c1b62; --muted:#5a5a7a; --line:#ddd8ce; --line2:#ede9e3;
   --accent:#e89027; --accent-l:#f5b45e; --accent-soft:#e890271f; --accent-text:#9a5a0c;
@@ -183,6 +186,26 @@
 @media (max-width:760px){
 .mq .band{padding-block:56px}
 .mq .band.tight{padding-block:28px 56px}
+}
+.mq .hero.fresh .inner>*{animation:mqUp .55s ease-out both}
+.mq .hero.fresh .inner>:nth-child(2){animation-delay:.1s}
+.mq .hero.fresh .inner>:nth-child(3){animation-delay:.2s}
+.mq .hero.fresh .inner>:nth-child(4){animation-delay:.25s}
+.mq .hero.fresh .inner>:nth-child(5){animation-delay:.3s}
+.mq .hero.fresh .inner>:nth-child(n+6){animation-delay:.35s}
+.mq .qcard.enter-fwd{animation:mqInR .35s ease-out both}
+.mq .qcard.enter-back{animation:mqInL .35s ease-out both}
+.mq .band.tight{overflow-x:clip}
+.mq .progress i{transition:width .5s ease-out}
+.mq .bar .track i{transition:width .6s ease-out}
+.mq .opt,.mq .chip{transition:border-color .15s,background .15s,transform .12s ease-out}
+.mq .opt:active,.mq .chip:active{transform:scale(.98)}
+.mq .cards.stagger .card{animation:mqUp .55s ease-out both;animation-delay:calc(var(--i) * .12s + .1s)}
+.mq .reveal{opacity:0;transform:translateY(24px);transition:opacity .55s ease-out,transform .55s ease-out}
+.mq .reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+.mq, .mq *{animation:none!important;transition:none!important}
+.mq .reveal{opacity:1!important;transform:none!important}
 }
 
 /* 官網整合 */

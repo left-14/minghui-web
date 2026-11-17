@@ -515,13 +515,26 @@ function userDims(ans){
 /* ---------- 畫面 ---------- */
 let answers=[], lastSubj={strong:[],weak:[]}, lock=false;
 
+/* ---------- 動畫：換題方向、長條從上一次的長度長到新長度、捲到才淡入 ---------- */
+let navDir="fwd", prevProg=0, prevBars={}, resultFresh=false, lastShellN=-1;
+function kick(){
+  navDir="fwd";
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    app.querySelectorAll("[data-to]").forEach(e=>{e.style.width=e.dataset.to;});
+  }));
+  const els=app.querySelectorAll(".reveal:not(.in)");
+  if(!("IntersectionObserver" in window)){els.forEach(e=>e.classList.add("in"));return;}
+  const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target);}}),{rootMargin:"0px 0px -72px 0px"});
+  els.forEach(e=>io.observe(e));
+}
+const mo=new MutationObserver(kick); mo.observe(app,{childList:true});
 const ranked=p=>p.map((v,i)=>({i,v})).sort((a,b)=>b.v-a.v);
 const pct=v=>(v*100).toFixed(v<0.1?1:0)+"%";
 const short=n=>n.replace("學群","");
 
 function renderIntro(){
   app.innerHTML=`
-  <section class="hero"><div class="inner">
+  <section class="hero fresh"><div class="inner">
     <p class="eyebrow">科系羅盤 · 免費科系探索測驗</p>
     <h1>12 到 20 題<em>找到適合你的大學科系</em></h1>
     <div class="rule"></div>
@@ -534,7 +547,7 @@ function renderIntro(){
     <button class="btn" id="start">開始測驗</button>
     <p class="note">目前為測試版，題目仍在持續調整，結果僅供參考，不能取代專業的升學諮詢。作答內容和成績只在你的瀏覽器裡計算，不會上傳或儲存。</p>
   </div></section>
-  <section class="band"><div class="inner">
+  <section class="band"><div class="inner reveal">
     <div class="band-head"><p class="eyebrow">測驗方式</p><h2>三種題型，從不同角度認識你</h2></div>
     <div class="types">
       <div class="type"><b>拿手科目</b>從成績強弱看你的能力方向</div>
@@ -542,24 +555,27 @@ function renderIntro(){
       <div class="type"><b>做過的事</b>過去一年實際做過什麼，比感覺更準</div>
     </div>
   </div></section>`;
-  byId("start").onclick=()=>{answers=[];lastSubj={strong:[],weak:[]};renderStep();};
+  byId("start").onclick=()=>{answers=[];prevProg=0;prevBars={};lastShellN=-1;lastSubj={strong:[],weak:[]};renderStep();};
 }
 
 function railHTML(post){
   const r=ranked(post), out=post.filter(v=>v<0.01).length;
-  return `<aside class="rail" aria-label="目前候選學群">
+  const html=`<aside class="rail" aria-label="目前候選學群">
     <h3>目前最可能的學群</h3>
     <p class="why">每答一題，系統重算 18 個學群的機率，再挑下一個最能分出高下的問題。</p>
     <div class="bars">${r.slice(0,6).map((x,k)=>`
-      <div class="bar${k===0&&answers.length?" lead":""}"><span>${short(GROUPS[x.i].n)}</span><span class="track"><i style="width:${(x.v*100).toFixed(1)}%"></i></span><span class="v">${pct(x.v)}</span></div>`).join("")}
+      <div class="bar${k===0&&answers.length?" lead":""}"><span>${short(GROUPS[x.i].n)}</span><span class="track"><i style="width:${(prevBars[x.i]||0).toFixed(1)}%" data-to="${(x.v*100).toFixed(1)}%"></i></span><span class="v">${pct(x.v)}</span></div>`).join("")}
     </div>
     <p class="out">機率低於 1% 的學群：<span class="mono">${out}</span> / 18</p>
   </aside>`;
+  prevBars={}; post.forEach((v,i)=>{prevBars[i]=v*100;});
+  return html;
 }
 function shell(n,gainText,kind,body,foot){
-  return `<section class="band tight"><div class="inner narrow"><div class="quiz"><div class="qcard">
+  const enter=n!==lastShellN?` enter-${navDir}`:""; lastShellN=n;
+  return `<section class="band tight"><div class="inner narrow"><div class="quiz"><div class="qcard${enter}">
     <div class="qmeta"><span>第 <span class="mono">${n+1}</span> 題 · 約 ${MIN_Q} 到 ${MAX_Q} 題</span><span>${gainText}</span></div>
-    <div class="progress"><i style="width:${Math.min(100,(n/MAX_Q)*100)}%"></i></div>
+    <div class="progress"><i style="width:${prevProg}%" data-to="${(prevProg=Math.min(100,(n/MAX_Q)*100))}%"></i></div>
     <div class="qkind">${kind}</div>${body}
     <div class="qfoot"><button class="linkbtn" id="back" ${n?"":"disabled"}>上一題</button><span class="note">${foot}</span></div>
   </div>${railHTML(posterior(answers))}</div></div></section>`;
@@ -589,7 +605,7 @@ function renderSubjects(){
 
 function renderQuestion(){
   const nxt=pickNext(answers), top=Math.max(...posterior(answers)), n=answers.length;
-  if(nxt===null||n>=MAX_Q||(n>=MIN_Q&&top>=STOP_P)) return renderResult();
+  if(nxt===null||n>=MAX_Q||(n>=MIN_Q&&top>=STOP_P)){resultFresh=true;return renderResult();}
   const it=ITEMS[nxt.i], gain="依你前面的回答挑選";
   let body;
   if(it.type==="fc"){
@@ -609,7 +625,7 @@ function renderQuestion(){
     app.innerHTML=shell(n,gain,"做過的事",body,"照實際情況回答。鍵盤 1 是有，2 是沒有");
   }
   app.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>answer(nxt.i,+b.dataset.a,b));
-  byId("back").onclick=()=>{answers.pop();renderStep();};
+  byId("back").onclick=()=>{navDir="back";answers.pop();renderStep();};
 }
 function answer(i,a,el){
   if(lock) return; lock=true; el.classList.add("on");
@@ -656,11 +672,12 @@ function pick3(list,sc){
   return out.sort((a,b)=>a.i-b.i).map(x=>({...x,role:""}));
 }
 function renderResult(){
+  const fresh=resultFresh; resultFresh=false;
   const post=posterior(answers), r=ranked(post), ud=userDims(answers), top=r[0].v;
   const conf=top>=STOP_P?"結果相當明確":(top>=0.4?"結果有方向，但前幾名差距不大":"你的興趣分布很平均，前幾名都值得看看");
   const lvl=v=>v>=0.5?["高度相符","hi"]:v>=0.15?["相符",""]:["可以看看",""];
   const cards=r.slice(0,3).map((x,k)=>{const g=GROUPS[x.i],[t,c]=lvl(x.v);return `
-    <article class="card${k===0?" first":""}">
+    <article class="card${k===0?" first":""}" style="--i:${k}">
       <div class="chead"><span class="rank">No.${k+1}</span><h2>${g.n}</h2><span class="level ${c}">${t}</span></div>
       <p class="reason">${reasonFor(x.i,ud)}</p>
       <div class="depts">${g.d.map(([n,list])=>{
@@ -691,7 +708,7 @@ function renderResult(){
         <p class="note">模擬考和正式學測常差 1 到 2 級分；通過第一階段篩選只代表能參加第二階段審查，不等於錄取。</p>`:""}
     </section>`;
   app.innerHTML=`
-  <section class="hero sm"><div class="inner">
+  <section class="hero sm${fresh?" fresh":""}"><div class="inner">
     <p class="eyebrow">測驗結果</p>
     <h1>最適合你的三個學群</h1>
     <div class="rule"></div>
@@ -699,10 +716,10 @@ function renderResult(){
   </div></section>
   <section class="band tight"><div class="inner narrow stack">
     ${scorePanel}
-    <div class="cards" id="cards">${cards}</div>
+    <div class="cards${fresh?" stagger":""}" id="cards">${cards}</div>
     <p class="others"><b>也可以看看：</b>${r.slice(3,6).map(x=>GROUPS[x.i].n).join("、")}</p>
 
-    <section class="paid" aria-label="完整報告">
+    <section class="paid${fresh?" reveal":""}" aria-label="完整報告">
       <h2>完整報告（即將推出）</h2>
       <ul>
         <li>18 個學群完整排序，以及你在 19 個面向上的分布圖</li>
@@ -714,7 +731,7 @@ function renderResult(){
       <p class="note">完整報告還在準備中，推出後會在這裡開放。</p>
     </section>
 
-    <details class="algo">
+    <details class="algo${fresh?" reveal":""}">
       <summary>這個結果是怎麼算出來的</summary>
       <div class="algo-body">
         <p class="muted">第一題固定問拿手科目。之後每一步，系統計算題庫裡每一題「問了之後能降低多少不確定性」，挑最高的一題；同一面向最多問 ${PER_DIM} 次，避免重複。第一名機率達 ${STOP_P*100}% 且已答 ${MIN_Q} 題，或答滿 ${MAX_Q} 題就停止。</p>
@@ -740,9 +757,9 @@ function renderResult(){
     const c=byId("cards"); if(c) c.scrollIntoView({behavior:"smooth",block:"start"});
   };
   byId("again").onclick=()=>{answers=[];scores=null;renderIntro();toTop();};
-  byId("backq").onclick=()=>{answers.pop();renderStep();toTop();};
+  byId("backq").onclick=()=>{navDir="back";answers.pop();renderStep();toTop();};
 }
 
 renderIntro();
-return ()=>{document.removeEventListener("keydown",onKey);app.innerHTML="";};
+return ()=>{mo.disconnect();document.removeEventListener("keydown",onKey);app.innerHTML="";};
 }
