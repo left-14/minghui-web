@@ -337,8 +337,7 @@ export default async function TutorPage() {
                     )}
                     <div className="min-w-0">
                       <h3
-                        className="font-bold text-base leading-tight mb-1 transition-colors duration-150 group-hover:text-[var(--accent)]"
-                        style={{ color: 'var(--navy)' }}
+                        className="font-bold text-base leading-tight mb-1 transition-colors duration-150 text-[var(--navy)] group-hover:text-[var(--accent)]"
                       >
                         {tutor.name}
                       </h3>
