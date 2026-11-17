@@ -548,7 +548,22 @@ const MORE10={
  "管理學群|國際企業":[["中興國際農企業學士學位學程",["英文11","自然9"],"-FAA-A-"]],
  "醫藥衛生學群|獸醫":[["中興獸醫",["英文12","英數A自40"],"AFA--AB"]],
 };
-for(const [key,list] of [...Object.entries(MORE),...Object.entries(MORE2),...Object.entries(MORE3),...Object.entries(MORE3b),...Object.entries(MORE3c),...Object.entries(MORE3d),...Object.entries(MORE4),...Object.entries(MORE5),...Object.entries(MORE6),...Object.entries(MORE7),...Object.entries(MORE8),...Object.entries(MORE9),...Object.entries(MORE10)]){
+/* ---------- 補齊：中央 016 ---------- */
+const MORE11={
+ "外語學群|其他外語":[["中央法國語文",["社會12","國文12","英文12"],"FF--F--"]],
+ "文史哲學群|人文社會學士班":[["中央文學院學士班",["國英數B社41","社會11","國文12","英文13"],"FF--A--"],["中央客家語文暨社會科學(客家語文及傳播組)",["(國文+社會)24"],"FF--F--"],["中央客家語文暨社會科學(客家社會及政策組)",["(國文+社會)24"],"FF--F--"]],
+ "數理化學群|數學":[["中央數學(計算與資料科學組)",["(英文+自然)21","數學A13"],"-AF--A-"]],
+ "數理化學群|物理":[["中央理學院學士班",["數A自24","自然14"],"AAA--A-"]],
+ "工程學群|光電工程":[["中央光電科學與工程",["自然13","英文13","數學A11"],"AAA--A-"]],
+ "工程學群|土木工程":[["中央土木工程",["英數A自35"],"AAA--A-"]],
+ "工程學群|機械工程":[["中央機械工程(先進材料與精密製造組)",["國英數A自46","(數學A+自然)26"],"-AA--A-"],["中央機械工程(智慧系統與永續能源組)",["國英數A自44","(數學A+自然)25"],"-AA--A-"],["中央機械工程(前瞻半導體國際組)",["國英數A自47","(數學A+自然)25"],"-AA--A-"]],
+ "工程學群|不分系學士班":[["中央工學院學士班",["(社會+自然)27"],"----AA-"],["中央資訊電機學院學士班",["國文10","(英文+數學A+自然)39"],"AFF--F-"]],
+ "工程學群|電機工程":[["中央通訊工程",["(國文+自然)26","國英數A自51","(英文+數學A)25"],"AFF--F-"]],
+ "工程學群|醫學工程":[["中央生醫科學與工程",["英文13","(數學A+自然)24"],"-FF--F-"]],
+ "地球與環境學群|大氣科學":[["中央太空科學與工程",["(數學A+自然)23","英數A自37"],"AAF--F-"]],
+ "地球與環境學群|地質與地球科學":[["中央地球科學學院學士班",["(英文+數學A+自然)31","數A自23"],"AAF--F-"]],
+};
+for(const [key,list] of [...Object.entries(MORE),...Object.entries(MORE2),...Object.entries(MORE3),...Object.entries(MORE3b),...Object.entries(MORE3c),...Object.entries(MORE3d),...Object.entries(MORE4),...Object.entries(MORE5),...Object.entries(MORE6),...Object.entries(MORE7),...Object.entries(MORE8),...Object.entries(MORE9),...Object.entries(MORE10),...Object.entries(MORE11)]){
   const [gn,dn]=key.split("|"), g=GROUPS.find(x=>x.n===gn);
   let d=g.d.find(x=>x[0]===dn); if(!d){d=[dn,[]]; g.d.push(d);}
   list.forEach(([name,steps,chk])=>{d[1].push([name,steps]); CHK[name]=chk;});
