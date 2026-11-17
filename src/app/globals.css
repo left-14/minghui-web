@@ -226,3 +226,19 @@ body {
 .article-table table { width: 100%; border-collapse: collapse; font-size: 0.9375rem; line-height: 1.6; }
 .article-table th, .article-table td { padding: 0.75rem 1rem; border: 1px solid var(--border); text-align: left; vertical-align: top; }
 .article-table th { background: var(--cream); font-weight: 600; }
+
+/* ─── 換頁轉場（搭配 src/app/(site)/template.tsx） ─────── */
+/* 只用透明度與小幅位移，播完不保留 transform，
+   頁面裡的 fixed 彈窗（例如筆記預覽）不受影響 */
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.page-enter {
+  /* backwards：播放前套用起始狀態，播完不保留，transform 會真正回到 none */
+  animation: page-enter 0.35s ease-out backwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-enter { animation: none; }
+}
