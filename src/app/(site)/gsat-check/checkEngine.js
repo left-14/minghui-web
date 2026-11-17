@@ -563,7 +563,26 @@ const MORE11={
  "地球與環境學群|大氣科學":[["中央太空科學與工程",["(數學A+自然)23","英數A自37"],"AAF--F-"]],
  "地球與環境學群|地質與地球科學":[["中央地球科學學院學士班",["(英文+數學A+自然)31","數A自23"],"AAF--F-"]],
 };
-for(const [key,list] of [...Object.entries(MORE),...Object.entries(MORE2),...Object.entries(MORE3),...Object.entries(MORE3b),...Object.entries(MORE3c),...Object.entries(MORE3d),...Object.entries(MORE4),...Object.entries(MORE5),...Object.entries(MORE6),...Object.entries(MORE7),...Object.entries(MORE8),...Object.entries(MORE9),...Object.entries(MORE10),...Object.entries(MORE11)]){
+/* ---------- 補齊：中山 027 ---------- */
+const MORE12={
+ "藝術學群|戲劇":[["中山劇場藝術(男)",["國文10","英文5"],"AB-----"],["中山劇場藝術(女)",["國文10","英文7"],"AB-----"]],
+ "藝術學群|音樂":[["中山音樂",null,"-------"]],
+ "生命科學學群|生命科學":[["中山生物科學(英語組)",["(英文+數學A)17","自然12"],"AAA--F-"],["中山生物醫學科技全英語學士班(生物醫學組)",["(英文+自然)23","數學A10"],"-AA--A-"]],
+ "工程學群|醫學工程":[["中山生物醫學科技全英語學士班(生醫工程組)",["(英文+自然)23","數學A10"],"AAA--A-"]],
+ "數理化學群|化學":[["中山化學(英語組)",["國英數A自47"],"-FA--AA"]],
+ "數理化學群|物理":[["中山物理(量子科技組全英)",["(英文+數學A+自然)36"],"-AA--A-"]],
+ "數理化學群|數學":[["中山應用數學(英語組)",["國英數A自43","英文12","數學A10"],"-AA----"]],
+ "工程學群|電機工程":[["中山電機工程(英語組)",["英數A自39"],"-FA--A-"]],
+ "工程學群|機械工程":[["中山機械與機電工程(全英語組)",["英數A自30","數學A9","自然13"],"-AA--A-"]],
+ "資訊學群|資訊工程":[["中山資訊工程全英語學士班",["國英數A自45","自然12","數學A12"],"AFF--A-"]],
+ "工程學群|光電工程":[["中山光電工程",["自然13","數學A13"],"-AA--A-"],["中山光電工程(全英語組)",["自然13","數學A10"],"-FA--A-"]],
+ "工程學群|材料工程":[["中山材料與光電科學",["(國文+英文)24","(數學A+自然)25"],"AAF--F-"],["中山材料與光電科學(全英語組)",["英文13","(數學A+自然)23"],"-AF--F-"]],
+ "管理學群|國際企業":[["中山國際經營管理全英語學士學位學程",["數學B8","英文13"],"-A-AA--"]],
+ "地球與環境學群|海洋科學":[["中山海洋生物科技暨資源",["自然11","英文11"],"-AAA-AB"],["中山海洋環境及工程",["(數學A+自然)22"],"-AA--A-"],["中山海洋科學",["自然10","英文10","數學A10"],"-AA--A-"]],
+ "法政學群|政治":[["中山政治經濟",["國英24","英文12"],"-AAA---"]],
+ "文史哲學群|人文社會學士班":[["中山人文暨科技跨領域",["(國文+英文)23"],"AAAF---"]],
+};
+for(const [key,list] of [...Object.entries(MORE),...Object.entries(MORE2),...Object.entries(MORE3),...Object.entries(MORE3b),...Object.entries(MORE3c),...Object.entries(MORE3d),...Object.entries(MORE4),...Object.entries(MORE5),...Object.entries(MORE6),...Object.entries(MORE7),...Object.entries(MORE8),...Object.entries(MORE9),...Object.entries(MORE10),...Object.entries(MORE11),...Object.entries(MORE12)]){
   const [gn,dn]=key.split("|"), g=GROUPS.find(x=>x.n===gn);
   let d=g.d.find(x=>x[0]===dn); if(!d){d=[dn,[]]; g.d.push(d);}
   list.forEach(([name,steps,chk])=>{d[1].push([name,steps]); CHK[name]=chk;});
