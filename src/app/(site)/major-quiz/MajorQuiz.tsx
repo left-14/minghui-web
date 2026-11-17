@@ -22,7 +22,7 @@ export default function MajorQuiz() {
     <div className="mq">
       <div className="wrap">
         <section ref={ref} aria-live="polite">
-          <p className="note">測驗載入中⋯</p>
+          <p className="note" style={{ padding: '48px 16px', textAlign: 'center' }}>測驗載入中⋯</p>
         </section>
       </div>
     </div>

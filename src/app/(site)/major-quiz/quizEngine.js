@@ -521,7 +521,7 @@ const short=n=>n.replace("學群","");
 
 function renderIntro(){
   app.innerHTML=`
-  <section class="intro">
+  <section class="hero"><div class="inner">
     <p class="eyebrow">科系羅盤 · 免費科系探索測驗</p>
     <h1>12 到 20 題<em>找到適合你的大學科系</em></h1>
     <div class="rule"></div>
@@ -531,14 +531,17 @@ function renderIntro(){
       <div class="fact"><b>19</b><span>個面向，涵蓋興趣、能力與經驗</span></div>
       <div class="fact"><b>18</b><span>個大學學群全部納入比對</span></div>
     </div>
+    <button class="btn" id="start">開始測驗</button>
+    <p class="note">目前為測試版，題目仍在持續調整，結果僅供參考，不能取代專業的升學諮詢。作答內容和成績只在你的瀏覽器裡計算，不會上傳或儲存。</p>
+  </div></section>
+  <section class="band"><div class="inner">
+    <div class="band-head"><p class="eyebrow">測驗方式</p><h2>三種題型，從不同角度認識你</h2></div>
     <div class="types">
       <div class="type"><b>拿手科目</b>從成績強弱看你的能力方向</div>
       <div class="type"><b>二選一情境</b>兩件事都不錯時，你會選哪個</div>
       <div class="type"><b>做過的事</b>過去一年實際做過什麼，比感覺更準</div>
     </div>
-    <button class="btn" id="start">開始測驗</button>
-    <p class="note">目前為測試版，題目仍在持續調整，結果僅供參考，不能取代專業的升學諮詢。作答內容和成績只在你的瀏覽器裡計算，不會上傳或儲存。</p>
-  </section>`;
+  </div></section>`;
   byId("start").onclick=()=>{answers=[];lastSubj={strong:[],weak:[]};renderStep();};
 }
 
@@ -554,12 +557,12 @@ function railHTML(post){
   </aside>`;
 }
 function shell(n,gainText,kind,body,foot){
-  return `<section class="quiz"><div class="qcard">
+  return `<section class="band tight"><div class="inner narrow"><div class="quiz"><div class="qcard">
     <div class="qmeta"><span>第 <span class="mono">${n+1}</span> 題 · 約 ${MIN_Q} 到 ${MAX_Q} 題</span><span>${gainText}</span></div>
     <div class="progress"><i style="width:${Math.min(100,(n/MAX_Q)*100)}%"></i></div>
     <div class="qkind">${kind}</div>${body}
     <div class="qfoot"><button class="linkbtn" id="back" ${n?"":"disabled"}>上一題</button><span class="note">${foot}</span></div>
-  </div>${railHTML(posterior(answers))}</section>`;
+  </div>${railHTML(posterior(answers))}</div></div></section>`;
 }
 
 function renderStep(){ answers.length?renderQuestion():renderSubjects(); }
@@ -688,11 +691,13 @@ function renderResult(){
         <p class="note">模擬考和正式學測常差 1 到 2 級分；通過第一階段篩選只代表能參加第二階段審查，不等於錄取。</p>`:""}
     </section>`;
   app.innerHTML=`
-  <section class="wrap" style="gap:18px">
-    <div class="rhead">
-      <p class="muted">你回答了 <span class="mono">${answers.length}</span> 題 · ${conf}</p>
-      <h1>最適合你的三個學群</h1>
-    </div>
+  <section class="hero sm"><div class="inner">
+    <p class="eyebrow">測驗結果</p>
+    <h1>最適合你的三個學群</h1>
+    <div class="rule"></div>
+    <p class="lead">你回答了 <span class="mono">${answers.length}</span> 題 · ${conf}</p>
+  </div></section>
+  <section class="band tight"><div class="inner narrow stack">
     ${scorePanel}
     <div class="cards" id="cards">${cards}</div>
     <p class="others"><b>也可以看看：</b>${r.slice(3,6).map(x=>GROUPS[x.i].n).join("、")}</p>
@@ -725,7 +730,7 @@ function renderResult(){
       <button class="btn ghost" id="backq">回上一題修改</button>
     </div>
     <p class="note">測試版目前收錄 29 所大學的相關校系：國立 17 所（臺大、政大、師大、成大、清大、陽明交大、中興、中央、中山、臺北大學、中正、海洋、彰師、高師、高雄大學、臺北教育大學、臺中教育大學），私立 12 所（臺北醫學、高雄醫學、中國醫藥、中山醫學、長庚、輔仁、東吳、淡江、中原、逢甲、元智、東海）。檢定標準與篩選門檻取自大學甄選入學委員會公告的 115 學年度個人申請資料，五標取自大考中心公告，正式資訊以甄選會及各校公告為準。藝術、體育類校系以術科成績篩選，無法用學測估算。結果僅供參考。</p>
-  </section>`;
+  </div></section>`;
   byId("scoreForm").onsubmit=e=>{
     e.preventDefault();
     const sc={};SUBJ_KEYS.forEach(k=>{const v=byId("sc-"+k).value;sc[k]=v===""?null:+v;});
