@@ -433,9 +433,9 @@ function render(){
   app.innerHTML=`
   <section class="hero sm fresh"><div class="inner">
     <p class="eyebrow">學測落點快查 · 免費</p>
-    <h1>填入學測級分<em>看 ${SCHOOLS} 所大學的落點</em></h1>
+    <h1>填入學測級分<em>看個人申請的落點</em></h1>
     <div class="rule"></div>
-    <p class="lead">比對 115 學年度個人申請的檢定標準與第一階段篩選門檻，一次看完 ${TOTAL} 個校系。成績只在你的瀏覽器裡計算，不會上傳。</p>
+    <p class="lead">比對 115 學年度個人申請的檢定標準與第一階段篩選門檻。目前收錄 ${SCHOOLS} 所大學的部分校系，共 ${TOTAL} 個，持續增加中。成績只在你的瀏覽器裡計算，不會上傳。</p>
   </div></section>
   <section class="band tight"><div class="inner narrow stack">
     <section class="scores" aria-label="輸入級分">
@@ -465,7 +465,7 @@ function renderRes(scroll){
   const res=byId("res");
   if(!scores){
     res.innerHTML=`<div class="facts3">
-      <div class="type"><b>${SCHOOLS} 所大學</b>國立 17 所、私立 12 所，共 ${TOTAL} 個校系</div>
+      <div class="type"><b>${TOTAL} 個校系</b>來自 ${SCHOOLS} 所大學（國立 17 所、私立 12 所），各校只收錄部分校系，持續增加中</div>
       <div class="type"><b>先看檢定</b>有科目沒到校系要求的五標，會直接寫出是哪一科</div>
       <div class="type"><b>再比篩選</b>依甄選會公告的篩選順序，一關一關比對去年的最低級分</div>
     </div>`;
@@ -492,7 +492,7 @@ function renderRes(scroll){
     </div>
     <p class="count-line" id="countLine" aria-live="polite"></p>
     <div id="list" class="stack"></div>
-    <p class="note">門檻是去年（115 學年度）的資料，今年可能不同。模擬考和正式學測常差 1 到 2 級分；通過第一階段篩選只代表能參加第二階段審查，不等於錄取。正式資訊以大學甄選入學委員會及各校公告為準。</p>
+    <p class="note">目前收錄 ${SCHOOLS} 所大學的部分校系，沒列出來的校系代表還沒收錄，不代表沒有招生。門檻是去年（115 學年度）的資料，今年可能不同。模擬考和正式學測常差 1 到 2 級分；通過第一階段篩選只代表能參加第二階段審查，不等於錄取。正式資訊以大學甄選入學委員會及各校公告為準。</p>
     ${nextHTML()}`;
   res.querySelectorAll(".stat").forEach(b=>b.onclick=()=>{
     filt.cat=b.dataset.cat; res.querySelectorAll(".stat").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
@@ -509,7 +509,7 @@ function renderList(){
   const q=filt.q.toLowerCase();
   const hit=rows.filter(r=>(filt.cat==="all"||r.b===filt.cat)&&(filt.group==="all"||r.g===filt.group)&&(!q||(r.sch+r.d).toLowerCase().includes(q)));
   byId("countLine").textContent=`顯示 ${hit.length} / ${rows.length} 個校系`;
-  if(!hit.length){ byId("list").innerHTML=`<p class="empty">沒有符合條件的校系，換個篩選條件或關鍵字試試。</p>`; return; }
+  if(!hit.length){ byId("list").innerHTML=`<p class="empty">沒有符合條件的校系。目前各校只收錄部分校系，你找的校系可能還沒收錄；也可以換個篩選條件或關鍵字試試。</p>`; return; }
   const groups=[]; const gi={};
   hit.forEach(r=>{
     if(!(r.g in gi)){gi[r.g]=groups.length; groups.push({n:r.g,depts:[],di:{},c:0});}
