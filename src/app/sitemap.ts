@@ -14,6 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/thesis`, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE_URL}/about`, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${BASE_URL}/major-quiz`, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${BASE_URL}/gsat-check`, changeFrequency: 'monthly', priority: 0.7 },
   ];
 
   // Dynamic: exploration activities

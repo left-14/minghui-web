@@ -1,0 +1,28 @@
+/* 學測落點快查的額外樣式（由 build_check.py 產生）。基礎樣式沿用 ../major-quiz/major-quiz.css，規則都限定在 .mq 內 */
+
+.mq .facts3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.mq .facts3 .type{background:transparent;border:1px solid var(--line);border-left:4px solid var(--accent);padding:22px;font-size:.9rem;line-height:1.7;color:var(--muted)}
+.mq .facts3 .type:nth-child(2){border-left-color:var(--ink)}
+.mq .facts3 .type b{display:block;font-family:var(--font-serif);font-size:1.15rem;color:var(--ink);margin-bottom:6px}
+.mq .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:10px}
+.mq .stat{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--line);padding:12px 12px 10px;text-align:left;display:grid;gap:2px;min-height:44px;transition:border-color .15s,background .15s}
+.mq .stat b{font-family:var(--font-serif);font-size:1.6rem;line-height:1.15;color:var(--ink)}
+.mq .stat span{font-size:.8rem;color:var(--muted)}
+.mq .stat.s-safe{border-top-color:var(--ink)}
+.mq .stat.s-try{border-top-color:var(--accent)}
+.mq .stat.s-near{border-top-color:var(--accent-l)}
+.mq .stat.s-hard,.mq .stat.s-std{border-top-color:var(--bad)}
+.mq .stat:hover{border-color:var(--ink)}
+.mq .stat[aria-pressed="true"]{border-color:var(--ink);background:var(--accent-soft)}
+.mq .filters{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:12px;align-items:end}
+.mq .filters label{display:grid;gap:4px;font-size:.85rem;font-weight:700}
+.mq .filters select,.mq .filters input{font:inherit;font-size:16px;font-weight:400;min-height:44px;padding:8px 10px;border:1px solid var(--line);border-radius:0;background:var(--surface);color:var(--ink);width:100%}
+.mq .count-line{font-size:.85rem;color:var(--muted)}
+.mq .gblock{display:grid;gap:14px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--ink2);padding:20px clamp(16px,3vw,26px)}
+.mq .gblock h3{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:1.2rem}
+.mq .gcount{font-family:var(--font-body);font-size:.8rem;font-weight:400;color:var(--muted)}
+.mq .empty{background:var(--surface);border:1px dashed var(--line);padding:28px;text-align:center;color:var(--muted)}
+@media (max-width:760px){
+.mq .facts3{grid-template-columns:minmax(0,1fr)}
+.mq .filters{grid-template-columns:minmax(0,1fr)}
+}

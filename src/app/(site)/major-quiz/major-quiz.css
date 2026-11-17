@@ -222,6 +222,7 @@
 .mq .next-card .btn{align-self:flex-start;margin-top:6px;padding:10px 20px;font-size:.9rem;text-decoration:none;display:inline-block}
 .mq .next-card.next-line .btn{background:#06c755;color:#fff}
 .mq .next-card.next-line .btn:hover{background:#05b04b}
+.mq .dept .more a{color:var(--accent-text);text-underline-offset:3px}
 
 /* 官網整合 */
 .mq{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.7}

@@ -761,7 +761,7 @@ function renderResult(){
         return `<div class="dept"><b>${n}</b><ul class="schools">${picks.map(({sch,pl,role})=>{
           const tag=`<span class="pl ${CAT[pl.cat][1]}">${CAT[pl.cat][0]}</span>`;
           const why=pl.cat==="std"?`<small class="why-std">${pl.fails.join("；")}</small>`:"";
-          return `<li><span>${role?`<em class="role">${role}</em>`:""}${sch}${why}</span>${tag}</li>`;}).join("")}</ul>${rest>0?`<p class="more">還有 ${rest} 校，完整報告推出後可看</p>`:""}</div>`;}).join("")}</div>
+          return `<li><span>${role?`<em class="role">${role}</em>`:""}${sch}${why}</span>${tag}</li>`;}).join("")}</ul>${rest>0?`<p class="more">還有 ${rest} 校，<a href="${SITE}/gsat-check" data-cta="gsat">到落點快查看全部</a></p>`:""}</div>`;}).join("")}</div>
     </article>`;}).join("");
   const opt=k=>`<option value="">未考</option>`+Array.from({length:16},(_,v)=>`<option value="${v}"${scores&&scores[k]===v?" selected":""}>${v}</option>`).join("");
   const scorePanel=`
@@ -831,6 +831,7 @@ function renderResult(){
     const sc={};SUBJ_KEYS.forEach(k=>{const v=byId("sc-"+k).value;sc[k]=v===""?null:+v;});
     sc.聽=byId("sc-聽").value||null;
     scores=SUBJ_KEYS.some(k=>sc[k]!==null)?sc:null; if(scores) track("quiz_score_submit","");
+    try{ scores?sessionStorage.setItem("mh_scores",JSON.stringify(scores)):sessionStorage.removeItem("mh_scores"); }catch(err){}
     renderResult();
     const c=byId("cards"); if(c) c.scrollIntoView({behavior:"smooth",block:"start"});
   };
