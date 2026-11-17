@@ -422,7 +422,7 @@ export default async function HomePage() {
                       )}
                     </div>
                     <div className="min-w-0">
-                      <h3 className="font-bold text-base leading-tight mb-1 group-hover:text-[#1E56A0] transition-colors" style={{ color: 'var(--navy)' }}>
+                      <h3 className="font-bold text-base leading-tight mb-1 group-hover:text-[var(--accent)] transition-colors" style={{ color: 'var(--navy)' }}>
                         {tutor.name}
                       </h3>
                       {tutor.title && <p className="text-xs leading-snug" style={{ color: 'var(--muted)' }}>{tutor.title}</p>}

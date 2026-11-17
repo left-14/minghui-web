@@ -47,6 +47,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── 選取文字：官網配色（淺金底、藏青字，深色區塊上也看得清楚） ─── */
+
+::selection {
+  background: var(--accent-light);
+  color: var(--navy);
+}
+
 /* ─── Typography helpers ────────────────────── */
 
 .font-display {
