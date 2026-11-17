@@ -637,7 +637,27 @@ const MORE16={
  "藝術學群|音樂":[["高師音樂",null,"-------"]],
  "遊憩與運動學群|體育":[["高師體育",null,"-------"],["彰師運動(競技運動與表演藝術組)",null,"-------"],["彰師運動(運動健康組)",null,"-------"]],
 };
-for(const [key,list] of [...Object.entries(MORE),...Object.entries(MORE2),...Object.entries(MORE3),...Object.entries(MORE3b),...Object.entries(MORE3c),...Object.entries(MORE3d),...Object.entries(MORE4),...Object.entries(MORE5),...Object.entries(MORE6),...Object.entries(MORE7),...Object.entries(MORE8),...Object.entries(MORE9),...Object.entries(MORE10),...Object.entries(MORE11),...Object.entries(MORE12),...Object.entries(MORE13),...Object.entries(MORE14),...Object.entries(MORE15),...Object.entries(MORE16)]){
+/* ---------- 補齊：高雄大學 101、北教大 032、中教大 031 ---------- */
+const MORE17={
+ "外語學群|其他外語":[["高大東亞語文(韓語組)",["國文10","社會10","英文9"],"AA--A--"],["高大東亞語文(越語組)",["國文10","社會10","英文8"],"AA--A--"]],
+ "法政學群|法律":[["高大財經法律",["(英文+數學B)19","國文12"],"AA-A---"]],
+ "管理學群|企業管理":[["高大亞太工商管理(工業管理組)",["國英數A30"],"A------"],["北教大文化創意產業經營",["國英社35"],"AAAAA--"],["中教大文化創意產業設計與營運",["國文10","社會11","英文8","英社22"],"-B-----"]],
+ "工程學群|土木工程":[["高大土木與環境工程(土木工程組)",["國數A自34"],"A-A--A-"]],
+ "地球與環境學群|環境工程":[["高大土木與環境工程(環境工程組)",["國數A自33"],"A-A--A-"]],
+ "資訊學群|資訊工程":[["高大資訊工程(資安組)",["英文10","數學A11"],"-AA--A-"],["北教大數學暨資訊教育(人工智慧與資訊組)",["(英文+數學A)20"],"--A----"]],
+ "資訊學群|資訊管理":[["中教大數位內容科技",["國英數B28"],"-B-A---"]],
+ "建築與設計學群|工業設計":[["高大工藝與創意設計",null,"-------"]],
+ "建築與設計學群|視覺傳達設計":[["北教大數位科技設計",["國英數B24","英文8","數學B7"],"AA-A---"],["北教大藝術與造形設計(設計組)",["國英數B29"],"AA-A---"]],
+ "藝術學群|美術":[["北教大藝術與造形設計(藝術組)",null,"-------"],["中教大美術",null,"-------"]],
+ "藝術學群|音樂":[["中教大音樂",null,"-------"]],
+ "遊憩與運動學群|體育":[["北教大體育",null,"-------"],["北教大體育(雙語教學組)",null,"-------"],["中教大體育(非運動專長組)",["數學B7"],"---B---"],["中教大體育(運動專長組)",null,"-------"]],
+ "教育學群|教育":[["北教大教育經營與管理",["國文11","(英文+數學B)18"],"AA-A---"],["北教大自然科學教育",["數學A8","自然11"],"AAA--A-"],["中教大數學教育",["數學A10"],"--A----"],["中教大科學教育與應用",["國英數A自39"],"-----B-"]],
+ "社會與心理學群|社會":[["北教大社會與區域發展",["英社24"],"-A--A--"],["中教大區域與社會發展",["社會13"],"----A--"]],
+ "文史哲學群|中國文學":[["北教大語文與創作(語文師資組)",["國英數B社36","英文8","國文13"],"FA-AA--"],["北教大台灣語言與文化",["國文11","社會12"],"A---A--"],["中教大臺灣語文",["社會10","國文12"],"A---A--"]],
+ "數理化學群|數學":[["北教大數學暨資訊教育(數學組)",["國文7","數學A11"],"--A----"]],
+ "文史哲學群|人文社會學士班":[["中教大全校不分系學士學位學程",["國英21","英文11"],"A------"]],
+};
+for(const [key,list] of [...Object.entries(MORE),...Object.entries(MORE2),...Object.entries(MORE3),...Object.entries(MORE3b),...Object.entries(MORE3c),...Object.entries(MORE3d),...Object.entries(MORE4),...Object.entries(MORE5),...Object.entries(MORE6),...Object.entries(MORE7),...Object.entries(MORE8),...Object.entries(MORE9),...Object.entries(MORE10),...Object.entries(MORE11),...Object.entries(MORE12),...Object.entries(MORE13),...Object.entries(MORE14),...Object.entries(MORE15),...Object.entries(MORE16),...Object.entries(MORE17)]){
   const [gn,dn]=key.split("|"), g=GROUPS.find(x=>x.n===gn);
   let d=g.d.find(x=>x[0]===dn); if(!d){d=[dn,[]]; g.d.push(d);}
   list.forEach(([name,steps,chk])=>{d[1].push([name,steps]); CHK[name]=chk;});
