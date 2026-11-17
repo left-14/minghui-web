@@ -7,6 +7,7 @@ import FloatingTestimonials from '@/components/home/FloatingTestimonials';
 import { ParallaxBg } from '@/components/ui/ParallaxBg';
 import { FadeIn } from '@/components/ui/FadeIn';
 import { RevealOnScroll } from '@/components/ui/RevealOnScroll';
+import { CountUp } from '@/components/ui/CountUp';
 import { sanityClient } from '@/lib/sanity/client';
 import { urlFor } from '@/lib/sanity/image';
 
@@ -311,16 +312,18 @@ export default async function HomePage() {
           </div>
 
           {/* Stats row */}
+          <FadeIn delay={0.45}>
           <div className="mt-20 pt-8 grid grid-cols-2 sm:grid-cols-4 gap-px" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
             {stats.map(({ value, unit, label }) => (
               <div key={label} className="py-6 pr-4 sm:pr-8">
                 <div className="font-display font-bold leading-none mb-1" style={{ color: '#FFFFFF', fontSize: '2.25rem' }}>
-                  {value}<span style={{ color: 'var(--accent)', fontSize: '1.25rem' }}>{unit}</span>
+                  <CountUp value={value} /><span style={{ color: 'var(--accent)', fontSize: '1.25rem' }}>{unit}</span>
                 </div>
                 <div className="text-xs tracking-wide" style={{ color: 'rgba(255,255,255,0.45)' }}>{label}</div>
               </div>
             ))}
           </div>
+          </FadeIn>
         </div>
       </section>
 
