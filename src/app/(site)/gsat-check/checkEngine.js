@@ -530,7 +530,25 @@ const MORE9={
  "大眾傳播學群|新聞、廣告、廣電":[["臺大生物產業傳播暨發展",["(國文+英文+數學A+社會)51"],"FFA-F--"]],
  "生命科學學群|生物科技":[["臺大生化科技",["數學A8","英文13","自然14"],"AAA--A-"]],
 };
-for(const [key,list] of [...Object.entries(MORE),...Object.entries(MORE2),...Object.entries(MORE3),...Object.entries(MORE3b),...Object.entries(MORE3c),...Object.entries(MORE3d),...Object.entries(MORE4),...Object.entries(MORE5),...Object.entries(MORE6),...Object.entries(MORE7),...Object.entries(MORE8),...Object.entries(MORE9)]){
+/* ---------- 補齊：中興 003 ---------- */
+const MORE10={
+ "文史哲學群|人文社會學士班":[["中興台灣人文創新學士學位學程",["社會13","英文9","國文13"],"AA--A--"]],
+ "管理學群|企業管理":[["中興行銷",["英文12","國文13"],"FFAF--B"]],
+ "數理化學群|物理":[["中興物理(光電物理組)",["數學A11","英文13"],"-AA--A-"]],
+ "數理化學群|數學":[["中興應用數學(數據科學與計算組)",["數學A11","自然11","英文12"],"--A----"],["中興應用數學(數據科學與計算組資安組)",["數學A12","英數A自34","英文10"],"--A----"]],
+ "工程學群|土木工程":[["中興土木工程",["(數學A+自然)22","英數A自35"],"-AA--A-"]],
+ "工程學群|材料工程":[["中興材料科學與工程",["英文14","(數學A+自然)25"],"-AA--A-"]],
+ "工程學群|機械工程":[["中興生物產業機電工程",["(英文+自然)21","數學A12"],"-AA--AB"]],
+ "工程學群|不分系學士班":[["中興智慧創意工程學士學位學程",["自然12","(英文+數學A)23"],"-AA--A-"],["中興電機資訊學院學士班",["英文12","(數學A+自然)26"],"-AA--A-"]],
+ "地球與環境學群|環境工程":[["中興水土保持",["英文8","自然9","數學A10"],"-AA--A-"],["中興土壤環境科學",["英文8","自然11"],"-AAA-A-"]],
+ "生物資源學群|食品科學":[["中興食品暨應用生物科技",["國文10","(英文+自然)24"],"AAAA-A-"]],
+ "生物資源學群|森林":[["中興森林(木材科學組)",["自然12"],"AA-A-A-"]],
+ "生物資源學群|植物病蟲害":[["中興植物病理",["國文12","(英文+自然)23"],"AA---A-"],["中興昆蟲",["國文10","英文8","自然12"],"AAAA-F-"]],
+ "生物資源學群|農藝與園藝":[["中興景觀與遊憩學士學位學程",["國文12","英文11","國英24"],"AAAA---"]],
+ "管理學群|國際企業":[["中興國際農企業學士學位學程",["英文11","自然9"],"-FAA-A-"]],
+ "醫藥衛生學群|獸醫":[["中興獸醫",["英文12","英數A自40"],"AFA--AB"]],
+};
+for(const [key,list] of [...Object.entries(MORE),...Object.entries(MORE2),...Object.entries(MORE3),...Object.entries(MORE3b),...Object.entries(MORE3c),...Object.entries(MORE3d),...Object.entries(MORE4),...Object.entries(MORE5),...Object.entries(MORE6),...Object.entries(MORE7),...Object.entries(MORE8),...Object.entries(MORE9),...Object.entries(MORE10)]){
   const [gn,dn]=key.split("|"), g=GROUPS.find(x=>x.n===gn);
   let d=g.d.find(x=>x[0]===dn); if(!d){d=[dn,[]]; g.d.push(d);}
   list.forEach(([name,steps,chk])=>{d[1].push([name,steps]); CHK[name]=chk;});
