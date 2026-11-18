@@ -545,7 +545,7 @@ function renderIntro(){
       <div class="fact"><b>18</b><span>個大學學群全部納入比對</span></div>
     </div>
     <button class="btn" id="start">開始測驗</button>
-    <p class="note">目前為測試版，題目仍在持續調整，結果僅供參考，不能取代專業的升學諮詢。作答內容和成績只在你的瀏覽器裡計算，不會上傳或儲存。</p>
+    <p class="note">目前為測試版，題目仍在持續調整，結果僅供參考，不能取代專業的升學諮詢。作答內容和成績只在你的瀏覽器裡計算，不會上傳或儲存；我們只記錄匿名的使用次數與推薦學群，用來改善測驗。</p>
   </div></section>
   <section class="band"><div class="inner reveal">
     <div class="band-head"><p class="eyebrow">測驗方式</p><h2>三種題型，從不同角度認識你</h2></div>
@@ -555,7 +555,7 @@ function renderIntro(){
       <div class="type"><b>做過的事</b>過去一年實際做過什麼，比感覺更準</div>
     </div>
   </div></section>`;
-  byId("start").onclick=()=>{answers=[];prevProg=0;prevBars={};lastShellN=-1;lastSubj={strong:[],weak:[]};renderStep();};
+  byId("start").onclick=()=>{clearShare();track("quiz_start","");answers=[];prevProg=0;prevBars={};lastShellN=-1;lastSubj={strong:[],weak:[]};renderStep();};
 }
 
 function railHTML(post){
@@ -605,7 +605,7 @@ function renderSubjects(){
 
 function renderQuestion(){
   const nxt=pickNext(answers), top=Math.max(...posterior(answers)), n=answers.length;
-  if(nxt===null||n>=MAX_Q||(n>=MIN_Q&&top>=STOP_P)){resultFresh=true;return renderResult();}
+  if(nxt===null||n>=MAX_Q||(n>=MIN_Q&&top>=STOP_P)){resultFresh=true;track("quiz_complete",GROUPS[ranked(posterior(answers))[0].i].n);return renderResult();}
   const it=ITEMS[nxt.i], gain="依你前面的回答挑選";
   let body;
   if(it.type==="fc"){
@@ -671,6 +671,80 @@ function pick3(list,sc){
   for(const grp of order) for(const x of grp){ if(out.length<3&&!out.includes(x)) out.push(x); }
   return out.sort((a,b)=>a.i-b.i).map(x=>({...x,role:""}));
 }
+/* ---------- 下一步：事件記錄、服務推薦、分享 ---------- */
+const SITE="", LINE_URL="https://lin.ee/6uAXvJu";
+/* 只記錄匿名的動作與推薦學群，不送出作答內容與成績 */
+function track(action,label){
+  try{ if(typeof window.gtag==="function") window.gtag("event",action,{category:"quiz",label:String(label||"")}); }catch(e){}
+}
+/* 依結果挑下一步，順序：營隊、補強科目（筆記、家教）、遊學、LINE */
+function nextSteps(r){
+  const top=GROUPS[r[0].i].n, top3=r.slice(0,3).map(x=>GROUPS[x.i].n), out=[];
+  out.push({key:"camp",eyebrow:"科系探索營隊",title:`實際體驗${short(top)}相關科系`,
+    desc:"到大學校園上課、做實作，比看介紹更能確定是不是你想讀的。",btn:"查看營隊梯次",href:SITE+"/exploration"});
+  if(scores){
+    const weak=SUBJ_KEYS.filter(k=>scores[k]!==null&&scores[k]<STD[k][2])
+      .sort((a,b)=>(scores[a]-STD[a][2])-(scores[b]-STD[b][2]))[0];
+    if(weak){
+      const nm=SUBJ_NAMES[weak];
+      out.push({key:"notes",eyebrow:"補強"+nm,title:`${nm} ${scores[weak]} 級分，還沒到均標`,
+        desc:`115 學年度均標是 ${STD[weak][2]} 級分。學長姐整理的重點筆記，可以先把常考觀念補起來。`,btn:"看高分筆記",href:SITE+"/notes"});
+      out.push({key:"tutor",eyebrow:"一對一家教",title:`找老師針對${nm}加強`,
+        desc:"依你的程度和目標校系安排進度，零抽成、透明收費。",btn:"尋找老師",href:SITE+"/tutor"});
+    }
+  }
+  if(top3.includes("外語學群")||(scores&&scores.英!==null&&scores.英>=STD.英[1]))
+    out.push({key:"overseas",eyebrow:"海外名校遊學",title:"親自走進國外大學看看",
+      desc:"參訪名校、和當地留學生交流，提早想像在國外讀書的樣子。",btn:"看遊學行程",href:SITE+"/overseas"});
+  out.push({key:"line",eyebrow:"完整報告",title:"推出時第一時間通知你",
+    desc:"加入明慧教育官方 LINE，完整報告上線、營隊開放報名時會通知你，也可以直接留言問升學問題。",btn:"加入官方 LINE",href:LINE_URL,ext:true});
+  return out;
+}
+function nextHTML(r){
+  return `<section class="next" aria-label="接下來可以做的事">
+      <div class="next-head"><p class="eyebrow">下一步</p><h2>接下來可以做的事</h2></div>
+      <div class="next-grid">${nextSteps(r).map(x=>`
+        <article class="next-card next-${x.key}">
+          <p class="next-eyebrow">${x.eyebrow}</p>
+          <h3>${x.title}</h3>
+          <p class="next-desc">${x.desc}</p>
+          <a class="btn${x.key==="line"?"":" ghost"}" href="${x.href}" data-cta="${x.key}"${x.ext?' target="_blank" rel="noopener noreferrer"':""}>${x.btn}</a>
+        </article>`).join("")}
+      </div>
+    </section>`;
+}
+/* 分享連結：作答寫進網址 # 後面，不含成績。格式 v1.s拿手.w不拿手.q題號x答案 */
+const SHARE_V="v1";
+function encodeShare(){
+  const s0=answers[0]; if(!s0||s0.type!=="subj") return "";
+  return [SHARE_V,"s"+s0.strong.join("-"),"w"+s0.weak.join("-"),"q"+answers.slice(1).map(x=>x.i+"x"+x.a).join("-")].join(".");
+}
+function decodeShare(code){
+  const p=code.split("."); if(p.length!==4||p[0]!==SHARE_V) return null;
+  if(p[1][0]!=="s"||p[2][0]!=="w"||p[3][0]!=="q") return null;
+  const nums=t=>t?t.split("-").map(Number):[];
+  const strong=nums(p[1].slice(1)), weak=nums(p[2].slice(1));
+  if(!strong.length||[...strong,...weak].some(i=>!Number.isInteger(i)||i<0||i>=SUBJ.length)) return null;
+  const qs=p[3].length>1?p[3].slice(1).split("-").map(t=>t.split("x").map(Number)):[];
+  if(qs.some(([i,a])=>!Number.isInteger(i)||i<0||i>=ITEMS.length||![0,1,2].includes(a))) return null;
+  return [{type:"subj",strong,weak},...qs.map(([i,a])=>({type:"q",i,a}))];
+}
+let sharedView=false;
+function loadShared(){
+  const m=(location.hash||"").match(/^#r=([\w.\-]+)$/); if(!m) return false;
+  const a=decodeShare(m[1]); if(!a) return false;
+  answers=a; scores=null; sharedView=true; resultFresh=true; track("quiz_open_shared",""); renderResult(); return true;
+}
+function clearShare(){ sharedView=false; if(location.hash) history.replaceState(null,"",location.pathname+location.search); }
+async function shareResult(btn){
+  const url=location.origin+location.pathname+location.search+"#r="+encodeShare();
+  track("quiz_share","");
+  try{
+    if(navigator.share){ await navigator.share({title:document.title,text:"我做了科系羅盤，你也測測看：",url}); return; }
+    await navigator.clipboard.writeText(url); btn.textContent="已複製連結";
+  }catch(e){ if(e&&e.name==="AbortError") return; window.prompt("複製這個連結分享給朋友：",url); }
+  setTimeout(()=>{btn.textContent="分享結果";},2500);
+}
 function renderResult(){
   const fresh=resultFresh; resultFresh=false;
   const post=posterior(answers), r=ranked(post), ud=userDims(answers), top=r[0].v;
@@ -712,12 +786,16 @@ function renderResult(){
     <p class="eyebrow">測驗結果</p>
     <h1>最適合你的三個學群</h1>
     <div class="rule"></div>
-    <p class="lead">你回答了 <span class="mono">${answers.length}</span> 題 · ${conf}</p>
+    <p class="lead">${sharedView?"這是朋友分享給你的測驗結果。":`你回答了 <span class="mono">${answers.length}</span> 題 · ${conf}`}</p>
+    <div class="hero-actions">${sharedView
+      ?'<button class="btn" id="mine">測測看我自己的</button>'
+      :'<button class="btn" id="share">分享結果</button><span class="share-note">連結只包含作答，不含成績</span>'}</div>
   </div></section>
   <section class="band tight"><div class="inner narrow stack">
     ${scorePanel}
     <div class="cards${fresh?" stagger":""}" id="cards">${cards}</div>
     <p class="others"><b>也可以看看：</b>${r.slice(3,6).map(x=>GROUPS[x.i].n).join("、")}</p>
+    ${nextHTML(r)}
 
     <section class="paid${fresh?" reveal":""}" aria-label="完整報告">
       <h2>完整報告（即將推出）</h2>
@@ -752,14 +830,20 @@ function renderResult(){
     e.preventDefault();
     const sc={};SUBJ_KEYS.forEach(k=>{const v=byId("sc-"+k).value;sc[k]=v===""?null:+v;});
     sc.聽=byId("sc-聽").value||null;
-    scores=SUBJ_KEYS.some(k=>sc[k]!==null)?sc:null;
+    scores=SUBJ_KEYS.some(k=>sc[k]!==null)?sc:null; if(scores) track("quiz_score_submit","");
     renderResult();
     const c=byId("cards"); if(c) c.scrollIntoView({behavior:"smooth",block:"start"});
   };
-  byId("again").onclick=()=>{answers=[];scores=null;renderIntro();toTop();};
-  byId("backq").onclick=()=>{navDir="back";answers.pop();renderStep();toTop();};
+  byId("again").onclick=()=>{clearShare();answers=[];scores=null;renderIntro();toTop();};
+  app.querySelectorAll("[data-cta]").forEach(a=>a.addEventListener("click",()=>track("quiz_cta",a.dataset.cta)));
+  const sh=byId("share"); if(sh) sh.onclick=()=>shareResult(sh);
+  const mine=byId("mine"); if(mine) mine.onclick=()=>{clearShare();answers=[];scores=null;track("quiz_start","shared");renderIntro();toTop();};
+  byId("backq").onclick=()=>{clearShare();navDir="back";answers.pop();renderStep();toTop();};
 }
+const onHash=()=>{ if(loadShared()) toTop(); };
+window.addEventListener("hashchange",onHash);
+function boot(){ if(!loadShared()) renderIntro(); }
 
-renderIntro();
-return ()=>{mo.disconnect();document.removeEventListener("keydown",onKey);app.innerHTML="";};
+boot();
+return ()=>{mo.disconnect();window.removeEventListener("hashchange",onHash);document.removeEventListener("keydown",onKey);app.innerHTML="";};
 }

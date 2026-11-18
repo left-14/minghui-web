@@ -207,6 +207,21 @@
 .mq, .mq *{animation:none!important;transition:none!important}
 .mq .reveal{opacity:1!important;transform:none!important}
 }
+.mq .hero-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.mq .share-note{font-size:.8rem;color:rgba(255,255,255,.55)}
+.mq .next{display:grid;gap:20px;margin-top:8px}
+.mq .next-head{display:grid;gap:8px}
+.mq .next-head h2{font-size:clamp(1.4rem,3vw,1.75rem);font-weight:700}
+.mq .next-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.mq .next-card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--ink);padding:22px 22px 20px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.mq .next-card.next-camp{border-left-color:var(--accent)}
+.mq .next-card.next-line{border-left-color:#06c755}
+.mq .next-eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.14em;color:var(--accent-text)}
+.mq .next-card h3{font-family:var(--font-serif);font-size:1.1rem;line-height:1.45}
+.mq .next-desc{font-size:.88rem;color:var(--muted);flex:1}
+.mq .next-card .btn{align-self:flex-start;margin-top:6px;padding:10px 20px;font-size:.9rem;text-decoration:none;display:inline-block}
+.mq .next-card.next-line .btn{background:#06c755;color:#fff}
+.mq .next-card.next-line .btn:hover{background:#05b04b}
 
 /* 官網整合 */
 .mq{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.7}
