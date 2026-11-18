@@ -9,6 +9,7 @@ import TestimonialsCarousel, { type Testimonial } from '@/components/home/Testim
 import { ParallaxBg } from '@/components/ui/ParallaxBg';
 import { FadeIn } from '@/components/ui/FadeIn';
 import { RevealOnScroll } from '@/components/ui/RevealOnScroll';
+import { CountUp } from '@/components/ui/CountUp';
 import { sanityClient } from '@/lib/sanity/client';
 import { urlFor } from '@/lib/sanity/image';
 
@@ -199,7 +200,7 @@ export default async function ExplorationPage() {
               {stats.map(({ value, unit, label }) => (
                 <div key={label} className="py-6 pr-4 sm:pr-8">
                   <div className="font-display font-bold leading-none mb-1" style={{ color: '#FFFFFF', fontSize: '2.25rem' }}>
-                    {value}<span style={{ color: 'var(--accent)', fontSize: '1.25rem' }}>{unit}</span>
+                    <CountUp value={value} /><span style={{ color: 'var(--accent)', fontSize: '1.25rem' }}>{unit}</span>
                   </div>
                   <div className="text-xs tracking-wide" style={{ color: 'rgba(255,255,255,0.45)' }}>{label}</div>
                 </div>
