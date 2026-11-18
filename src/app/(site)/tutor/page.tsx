@@ -302,7 +302,7 @@ export default async function TutorPage() {
                 <Link
                   key={tutor.slug}
                   href={`/tutor/${tutor.slug}`}
-                  className="group bg-white p-6 flex flex-col transition-shadow duration-200 hover:shadow-lg relative"
+                  className="group bg-white p-6 flex flex-col card-lift relative"
                   style={{ border: '1px solid var(--border)' }}
                 >
                   {tutor.tier && tierConfig[tutor.tier] && (
@@ -337,8 +337,7 @@ export default async function TutorPage() {
                     )}
                     <div className="min-w-0">
                       <h3
-                        className="font-bold text-base leading-tight mb-1 transition-colors duration-150 group-hover:text-[#1E56A0]"
-                        style={{ color: 'var(--navy)' }}
+                        className="font-bold text-base leading-tight mb-1 transition-colors duration-150 text-[var(--navy)] group-hover:text-[var(--accent)]"
                       >
                         {tutor.name}
                       </h3>

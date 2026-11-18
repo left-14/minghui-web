@@ -47,6 +47,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── 選取文字：官網配色（淺金底、藏青字，深色區塊上也看得清楚） ─── */
+
+::selection {
+  background: var(--accent-light);
+  color: var(--navy);
+}
+
 /* ─── Typography helpers ────────────────────── */
 
 .font-display {
@@ -179,6 +186,32 @@ body {
 .testimonial-nav-btn:active {
   background: rgba(232,144,39,0.22);
   transform: scale(0.95);
+}
+
+/* ─── 可點擊卡片的滑過效果（全站統一） ──────────── */
+
+.card-lift {
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+@media (hover: hover) {
+  .card-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 32px -8px rgba(11, 10, 63, 0.16);
+  }
+}
+.card-lift:active {
+  transform: translateY(-1px);
+}
+.card-lift:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-lift,
+  .card-lift:hover,
+  .card-lift:active {
+    transform: none;
+  }
 }
 
 /* ─── Navbar nav-link hover underline ──────────── */

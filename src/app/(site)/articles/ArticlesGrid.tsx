@@ -12,15 +12,15 @@ export function ArticleCardItem({ article }: { article: ArticleCard }) {
   return (
     <Link
       href={`/articles/${article.slug}`}
-      className="group bg-white flex flex-col overflow-hidden transition-shadow duration-200 hover:shadow-lg"
+      className="group bg-white flex flex-col overflow-hidden card-lift"
       style={{ border: '1px solid var(--border)' }}
     >
-      <div className="relative" style={{ aspectRatio: '16 / 9', background: 'var(--border-light)' }}>
+      <div className="relative overflow-hidden" style={{ aspectRatio: '16 / 9', background: 'var(--border-light)' }}>
         <Image
           src={urlFor(article.cover).width(720).height(405).fit('crop').url()}
           alt={article.cover?.alt ?? article.title}
           fill
-          className="object-cover"
+          className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:group-hover:scale-100"
           sizes="(max-width: 768px) 100vw, 33vw"
         />
       </div>

@@ -118,7 +118,7 @@ function ServiceCard({ num, title, desc, cta, href, accentVar, accentBg, accentB
   return (
     <Link
       href={href}
-      className="group block bg-white p-8 relative overflow-hidden transition-shadow duration-300 hover:shadow-xl"
+      className="group block bg-white p-8 relative overflow-hidden card-lift"
       style={{ border: '1px solid var(--border)', borderTop: `3px solid ${accentVar}` }}
     >
       <span
@@ -412,7 +412,7 @@ export default async function HomePage() {
                 <Link
                   key={tutor.id ?? tutor.name}
                   href={tutor.id ? `/tutor/${tutor.id}` : '/tutor'}
-                  className="group bg-white p-6 flex flex-col transition-shadow duration-200 hover:shadow-lg"
+                  className="group bg-white p-6 flex flex-col card-lift"
                   style={{ border: '1px solid var(--border)' }}
                 >
                   <div className="flex items-center gap-4 mb-5 pb-5" style={{ borderBottom: '1px solid var(--border-light)' }}>
@@ -425,7 +425,7 @@ export default async function HomePage() {
                       )}
                     </div>
                     <div className="min-w-0">
-                      <h3 className="font-bold text-base leading-tight mb-1 group-hover:text-[#1E56A0] transition-colors" style={{ color: 'var(--navy)' }}>
+                      <h3 className="font-bold text-base leading-tight mb-1 text-[var(--navy)] group-hover:text-[var(--accent)] transition-colors">
                         {tutor.name}
                       </h3>
                       {tutor.title && <p className="text-xs leading-snug" style={{ color: 'var(--muted)' }}>{tutor.title}</p>}
