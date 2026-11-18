@@ -1,4 +1,7 @@
 /* 科系羅盤測驗頁樣式（由 build_site.py 自動產生，所有規則都限定在 .mq 內） */
+@keyframes mqUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes mqInR{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:none}}
+@keyframes mqInL{from{opacity:0;transform:translateX(-32px)}to{opacity:1;transform:none}}
 .mq{
   --bg:#f7f5f0; --surface:#ffffff; --ink:#0b0a3f; --ink2:#1c1b62; --muted:#5a5a7a; --line:#ddd8ce; --line2:#ede9e3;
   --accent:#e89027; --accent-l:#f5b45e; --accent-soft:#e890271f; --accent-text:#9a5a0c;
@@ -140,11 +143,74 @@
 }
 .mq .dept .more{font-size:.78rem;color:var(--muted);margin-top:6px;line-height:1.5}
 .mq .schools .role{font-style:normal;font-size:.72rem;font-weight:700;color:var(--accent-text);margin-right:6px}
+.mq .wrap{max-width:none;padding:0;gap:0;display:block}
+.mq .inner{max-width:80rem;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.mq .inner.narrow{max-width:68rem}
+.mq .stack{display:flex;flex-direction:column;gap:20px}
+.mq .eyebrow{letter-spacing:.15em;gap:8px}
+.mq .eyebrow::before{width:20px}
+.mq .hero{position:relative;overflow:hidden;color:#fff;padding-block:80px;background-color:var(--ink);
+  background-image:radial-gradient(ellipse at 80% 30%,rgba(232,144,39,.08) 0%,transparent 65%),radial-gradient(circle,rgba(255,255,255,.07) 1px,transparent 1px);
+  background-size:auto,28px 28px}
+.mq .hero.sm{padding-block:56px}
+.mq .hero .inner{display:grid;gap:24px}
+.mq .hero h1{font-size:clamp(2.4rem,5.5vw,4rem);line-height:1.15;font-weight:700;color:#fff}
+.mq .hero.sm h1{font-size:clamp(1.9rem,4vw,2.8rem)}
+.mq .hero h1 em{display:block;font-style:italic;color:var(--accent-l)}
+.mq .hero .rule{width:80px;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent-l),transparent)}
+.mq .hero .lead{max-width:42rem;font-size:1.125rem;line-height:1.7;color:rgba(255,255,255,.62)}
+.mq .hero .eyebrow{color:var(--accent-l)}
+.mq .hero .eyebrow::before{background:var(--accent-l)}
+.mq .hero .facts{max-width:46rem}
+.mq .hero .note{color:rgba(255,255,255,.55);max-width:42rem}
+.mq .hero .btn{padding:16px 36px}
+.mq .btn{transition:background .15s,transform .12s ease-out}
+.mq .btn:not([disabled]):hover{transform:translateY(-2px)}
+.mq .btn:not([disabled]):active{transform:scale(.97)}
+.mq .band{padding-block:80px;background:var(--bg)}
+.mq .band.tight{padding-block:48px 72px}
+.mq .band-head{display:grid;gap:10px;justify-items:center;text-align:center;margin-bottom:48px}
+.mq .band-head h2{font-size:clamp(1.75rem,3.5vw,2.25rem);font-weight:700}
+.mq .band .types{gap:24px}
+.mq .band .type{background:transparent;border:1px solid var(--line);border-left:4px solid var(--accent);padding:28px 28px;font-size:.9rem;line-height:1.7;color:var(--muted)}
+.mq .band .type:nth-child(2){border-left-color:var(--ink)}
+.mq .band .type b{font-family:var(--font-serif);font-size:1.25rem;color:var(--ink);margin-bottom:8px}
+@media (min-width:640px){
+.mq .inner{padding-left:24px;padding-right:24px}
+}
+@media (min-width:1024px){
+.mq .inner{padding-left:32px;padding-right:32px}
+.mq .hero{padding-block:112px}
+.mq .hero.sm{padding-block:72px}
+}
+@media (max-width:760px){
+.mq .band{padding-block:56px}
+.mq .band.tight{padding-block:28px 56px}
+}
+.mq .hero.fresh .inner>*{animation:mqUp .55s ease-out both}
+.mq .hero.fresh .inner>:nth-child(2){animation-delay:.1s}
+.mq .hero.fresh .inner>:nth-child(3){animation-delay:.2s}
+.mq .hero.fresh .inner>:nth-child(4){animation-delay:.25s}
+.mq .hero.fresh .inner>:nth-child(5){animation-delay:.3s}
+.mq .hero.fresh .inner>:nth-child(n+6){animation-delay:.35s}
+.mq .qcard.enter-fwd{animation:mqInR .35s ease-out both}
+.mq .qcard.enter-back{animation:mqInL .35s ease-out both}
+.mq .band.tight{overflow-x:clip}
+.mq .progress i{transition:width .5s ease-out}
+.mq .bar .track i{transition:width .6s ease-out}
+.mq .opt,.mq .chip{transition:border-color .15s,background .15s,transform .12s ease-out}
+.mq .opt:active,.mq .chip:active{transform:scale(.98)}
+.mq .cards.stagger .card{animation:mqUp .55s ease-out both;animation-delay:calc(var(--i) * .12s + .1s)}
+.mq .reveal{opacity:0;transform:translateY(24px);transition:opacity .55s ease-out,transform .55s ease-out}
+.mq .reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+.mq, .mq *{animation:none!important;transition:none!important}
+.mq .reveal{opacity:1!important;transform:none!important}
+}
 
 /* 官網整合 */
 .mq{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.7}
 .mq [hidden]{display:none!important}
-.mq .wrap{padding-top:40px}
 .mq .paid ul{list-style:disc}
 .mq .cards{scroll-margin-top:90px}
 /* 手機：下拉選單字級 16px，iPhone 點選時才不會自動放大 */
