@@ -1075,7 +1075,7 @@ function renderIntro(){
       <div class="type"><b>做過的事</b>過去一年實際做過什麼，比感覺更準</div>
     </div>
   </div></section>`;
-  byId("start").onclick=()=>{clearShare();track("quiz_start","");answers=[];prevProg=0;prevBars={};lastShellN=-1;lastSubj={strong:[],weak:[]};renderStep();};
+  byId("start").onclick=()=>{clearShare();follow=null;track("quiz_start","");answers=[];prevProg=0;prevBars={};lastShellN=-1;lastSubj={strong:[],weak:[]};renderStep();};
 }
 
 function railHTML(post){
@@ -1152,7 +1152,7 @@ function answer(i,a,el){
   setTimeout(()=>{answers.push({type:"q",i,a});lock=false;renderStep();},180);
 }
 const onKey=e=>{
-  if(!/^[1-3]$/.test(e.key)) return;
+  if(!/^[1-6]$/.test(e.key)) return;
   const t=e.target; if(t&&/^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName)) return;
   const b=byId("opt"+e.key); if(b) b.click();
 };
@@ -1190,6 +1190,79 @@ function pick3(list,sc){
   const out=[];
   for(const grp of order) for(const x of grp){ if(out.length<3&&!out.includes(x)) out.push(x); }
   return out.sort((a,b)=>a.i-b.i).map(x=>({...x,role:""}));
+}
+/* ---------- 追加題：第一名學群再問幾題，把學群裡的學類排先後 ----------
+   目前只有醫藥衛生學群，計分是人工設定，要先給真人測過再擴充到其他學群。
+   每個選項替幾個學類加分，答完依總分排序。不影響上面推薦學群的算法。 */
+const FOLLOW={"醫藥衛生學群":[
+ {t:"到醫院實習一週，你最想待在哪裡",o:[
+   ["病人身邊，跟病人說話、幫他做檢查或治療",{醫學:1,護理:1,牙醫:1,中醫:1,物理治療:1,職能治療:1,呼吸治療:1,語言治療與聽力:1,視光:1,醫學影像放射:.3}],
+   ["檢驗室、藥局或放射科，處理檢體、藥品或儀器",{醫學檢驗:1.2,藥學:1.2,醫學影像放射:1,牙體技術與口腔衛生:.6}],
+   ["動物醫院，照顧生病的貓狗",{獸醫:2.5}]]},
+ {t:"同樣是讓人更健康，你比較想",o:[
+   ["一次幫一個人，把他的問題處理好",{}],
+   ["想辦法讓一整個社區的人少生病",{公共衛生:2,營養:.8}]]},
+ {t:"病人來到你面前，你最想做的是",o:[
+   ["找出他為什麼生病，決定怎麼治療",{醫學:1,中醫:1,牙醫:.8,獸醫:.5,醫學檢驗:.4,醫學影像放射:.4}],
+   ["帶他做運動，練習走路和活動身體",{物理治療:1.2,呼吸治療:.3}],
+   ["陪他重新練習穿衣、吃飯、上學這些日常小事",{職能治療:1.2,護理:.4}],
+   ["待在他身邊照顧，留意他的變化",{護理:1.2}]]},
+ {t:"如果要專門照顧身體的一個部分，你最有興趣的是",o:[
+   ["牙齒和口腔",{牙體技術與口腔衛生:2,牙醫:.8}],
+   ["眼睛和視力",{視光:1.5}],
+   ["說話和聽力",{語言治療與聽力:1.5}],
+   ["呼吸和肺",{呼吸治療:1.5}],
+   ["沒有特定，想照顧整個人",{醫學:.8,護理:.5,中醫:.5,公共衛生:.3,營養:.3,物理治療:.2,職能治療:.2}]]},
+ {t:"讀大學這件事，你比較接近哪一種",o:[
+   ["讀久一點也沒關係，目標是當醫師（包含牙醫、中醫、獸醫）",{醫學:1,牙醫:1,中醫:1,獸醫:.6}],
+   ["想讀四年左右，考到證照就開始工作",{護理:.5,醫學檢驗:.5,醫學影像放射:.5,物理治療:.5,職能治療:.5,公共衛生:.5,營養:.5,呼吸治療:.5,牙體技術與口腔衛生:.5,語言治療與聽力:.5,視光:.5}]]},
+ {t:"下面哪個主題，你最想花時間多了解",o:[
+   ["藥怎麼在身體裡發揮作用",{藥學:1.3,醫學檢驗:.3}],
+   ["中藥和針灸怎麼調理身體",{中醫:1.5}],
+   ["X 光、超音波這些影像怎麼看見身體內部",{醫學影像放射:1.5}],
+   ["怎麼從血液或檢體找出生病的原因",{醫學檢驗:1.5}],
+   ["吃什麼、怎麼吃對身體比較好",{營養:2,公共衛生:.3}],
+   ["傳染病怎麼傳開、怎麼預防",{公共衛生:1.5}]]}
+]};
+let follow=null; /* {g:學群名稱, ans:[每題選的選項編號]} */
+function followRank(gn,ans){
+  const sc={}; FOLLOW[gn].forEach((q,i)=>{const o=q.o[ans[i]]; if(o) for(const k in o[1]) sc[k]=(sc[k]||0)+o[1][k];});
+  return sc;
+}
+const followDone=gn=>!!(follow&&follow.g===gn&&FOLLOW[gn]&&follow.ans.length===FOLLOW[gn].length);
+function startFollow(gn){ follow={g:gn,ans:[]}; track("quiz_follow_start",gn); navDir="fwd"; renderFollow(); toTop(); }
+function renderFollow(){
+  const qs=FOLLOW[follow.g], n=follow.ans.length;
+  if(n>=qs.length){
+    const best=Object.entries(followRank(follow.g,follow.ans)).sort((a,b)=>b[1]-a[1])[0];
+    track("quiz_follow_complete",best?best[0]:"");
+    renderResult(); const c=byId("cards"); if(c) c.scrollIntoView({block:"start"});
+    return;
+  }
+  const q=qs[n];
+  app.innerHTML=`<section class="band tight"><div class="inner narrow"><div class="qcard solo enter-${navDir}">
+    <div class="qmeta"><span>追加題 · 第 <span class="mono">${n+1}</span> 題，共 ${qs.length} 題</span><span>${follow.g}</span></div>
+    <div class="progress"><i style="width:${(n/qs.length*100).toFixed(1)}%" data-to="${((n+1)/qs.length*100).toFixed(1)}%"></i></div>
+    <div class="qkind">追加題</div>
+    <p class="qtext">${q.t}</p>
+    <div class="choices" role="group" aria-label="選一個">${q.o.map(([txt],i)=>`
+      <button class="opt" id="opt${i+1}" data-f="${i}"><span class="k">${"ABCDEF"[i]}</span><span>${txt}</span></button>`).join("")}
+    </div>
+    <div class="qfoot"><button class="linkbtn" id="back">${n?"上一題":"回到結果"}</button><span class="note">選最接近你的一個。鍵盤 1 到 ${q.o.length} 對應選項</span></div>
+  </div></div></section>`;
+  app.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{
+    if(lock) return; lock=true; b.classList.add("on");
+    setTimeout(()=>{follow.ans.push(+b.dataset.f); lock=false; renderFollow();},180);
+  });
+  byId("back").onclick=()=>{
+    navDir="back";
+    if(n){ follow.ans.pop(); renderFollow(); }
+    else { follow=null; renderResult(); const c=byId("cards"); if(c) c.scrollIntoView({block:"start"}); }
+  };
+}
+function followRows(){
+  if(!follow||!FOLLOW[follow.g]) return "";
+  return follow.ans.map((a,k)=>{const q=FOLLOW[follow.g][k];return `<tr><td class="mono">+${k+1}</td><td>追加題</td><td>${q.t}</td><td>${q.o[a][0]}</td></tr>`;}).join("");
 }
 /* ---------- 下一步：事件記錄、服務推薦、分享 ---------- */
 const SITE="", LINE_URL="https://lin.ee/6uAXvJu";
@@ -1233,27 +1306,34 @@ function nextHTML(r){
       </div>
     </section>`;
 }
-/* 分享連結：作答寫進網址 # 後面，不含成績。格式 v1.s拿手.w不拿手.q題號x答案 */
+/* 分享連結：作答寫進網址 # 後面，不含成績。格式 v1.s拿手.w不拿手.q題號x答案，答過追加題再加 .f選項編號 */
 const SHARE_V="v1";
 function encodeShare(){
   const s0=answers[0]; if(!s0||s0.type!=="subj") return "";
-  return [SHARE_V,"s"+s0.strong.join("-"),"w"+s0.weak.join("-"),"q"+answers.slice(1).map(x=>x.i+"x"+x.a).join("-")].join(".");
+  const parts=[SHARE_V,"s"+s0.strong.join("-"),"w"+s0.weak.join("-"),"q"+answers.slice(1).map(x=>x.i+"x"+x.a).join("-")];
+  if(follow&&followDone(follow.g)) parts.push("f"+follow.ans.join("-"));
+  return parts.join(".");
 }
 function decodeShare(code){
-  const p=code.split("."); if(p.length!==4||p[0]!==SHARE_V) return null;
+  const p=code.split("."); if(p.length<4||p.length>5||p[0]!==SHARE_V) return null;
+  if(p.length===5&&(p[4][0]!=="f"||!/^f\d(-\d)*$/.test(p[4]))) return null;
   if(p[1][0]!=="s"||p[2][0]!=="w"||p[3][0]!=="q") return null;
   const nums=t=>t?t.split("-").map(Number):[];
   const strong=nums(p[1].slice(1)), weak=nums(p[2].slice(1));
   if(!strong.length||[...strong,...weak].some(i=>!Number.isInteger(i)||i<0||i>=SUBJ.length)) return null;
   const qs=p[3].length>1?p[3].slice(1).split("-").map(t=>t.split("x").map(Number)):[];
   if(qs.some(([i,a])=>!Number.isInteger(i)||i<0||i>=ITEMS.length||![0,1,2].includes(a))) return null;
-  return [{type:"subj",strong,weak},...qs.map(([i,a])=>({type:"q",i,a}))];
+  const out=[{type:"subj",strong,weak},...qs.map(([i,a])=>({type:"q",i,a}))];
+  if(p.length===5) out.f=p[4].slice(1).split("-").map(Number);
+  return out;
 }
 let sharedView=false;
 function loadShared(){
   const m=(location.hash||"").match(/^#r=([\w.\-]+)$/); if(!m) return false;
   const a=decodeShare(m[1]); if(!a) return false;
-  answers=a; scores=null; sharedView=true; resultFresh=true; track("quiz_open_shared",""); renderResult(); return true;
+  answers=a; scores=null; sharedView=true; follow=null;
+  if(a.f){ const gn=GROUPS[ranked(posterior(a))[0].i].n, qs=FOLLOW[gn];
+    if(qs&&a.f.length===qs.length&&a.f.every((v,k)=>v<qs[k].o.length)) follow={g:gn,ans:a.f}; } resultFresh=true; track("quiz_open_shared",""); renderResult(); return true;
 }
 function clearShare(){ sharedView=false; if(location.hash) history.replaceState(null,"",location.pathname+location.search); }
 async function shareResult(btn){
@@ -1270,18 +1350,29 @@ function renderResult(){
   const post=posterior(answers), r=ranked(post), ud=userDims(answers), top=r[0].v;
   const conf=top>=STOP_P?"結果相當明確":(top>=0.4?"結果有方向，但前幾名差距不大":"你的興趣分布很平均，前幾名都值得看看");
   const lvl=v=>v>=0.5?["高度相符","hi"]:v>=0.15?["相符",""]:["可以看看",""];
+  const deptHTML=([n,list],top)=>{
+        if(!scores) return `<div class="dept${top?" top":""}"><b>${n}</b><p class="more">填入模擬考成績後，會從收錄的 ${list.length} 校挑出夢幻、可以拚、穩上各一校。</p></div>`;
+        const picks=pick3(list,scores);
+        const rest=list.length-picks.length;
+        return `<div class="dept${top?" top":""}"><b>${n}</b><ul class="schools">${picks.map(({sch,pl,role})=>{
+          const tag=`<span class="pl ${CAT[pl.cat][1]}">${CAT[pl.cat][0]}</span>`;
+          const why=pl.cat==="std"?`<small class="why-std">${pl.fails.join("；")}</small>`:"";
+          return `<li><span>${role?`<em class="role">${role}</em>`:""}${sch}${why}</span>${tag}</li>`;}).join("")}</ul>${rest>0?`<p class="more">還有 ${rest} 校，<a href="${SITE}/gsat-check" data-cta="gsat">到落點快查看全部</a></p>`:""}</div>`;};
+  const deptsOf=(g,k)=>{
+    const fq=FOLLOW[g.n];
+    if(k===0&&followDone(g.n)){
+      const sc=followRank(g.n,follow.ans), ds=[...g.d].sort((a,b)=>(sc[b[0]]||0)-(sc[a[0]]||0)), top=ds.slice(0,3), rest=ds.slice(3);
+      return `<p class="follow-note">依追加題的回答，這個學群裡最接近你的是${top.map(d=>`「${d[0]}」`).join("")}。${sharedView?"":'<button class="linkbtn" id="followRedo">重新回答追加題</button>'}</p>
+      <div class="depts">${top.map(d=>deptHTML(d,true)).join("")}${rest.length?`<details class="dept-more"><summary>其他 ${rest.length} 個學類</summary><div class="depts">${rest.map(d=>deptHTML(d,false)).join("")}</div></details>`:""}</div>`;
+    }
+    return (k===0&&fq&&!sharedView?`<div class="follow"><p>${g.n}有 ${g.d.length} 個學類。再答 ${fq.length} 題，幫你排出最適合的學類；不答也可以直接往下看。</p><button class="btn" id="followStart">再答 ${fq.length} 題</button></div>`:"")
+      +`<div class="depts">${g.d.map(d=>deptHTML(d,false)).join("")}</div>`;
+  };
   const cards=r.slice(0,3).map((x,k)=>{const g=GROUPS[x.i],[t,c]=lvl(x.v);return `
     <article class="card${k===0?" first":""}" style="--i:${k}">
       <div class="chead"><span class="rank">No.${k+1}</span><h2>${g.n}</h2><span class="level ${c}">${t}</span></div>
       <p class="reason">${reasonFor(x.i,ud)}</p>
-      <div class="depts">${g.d.map(([n,list])=>{
-        if(!scores) return `<div class="dept"><b>${n}</b><p class="more">填入模擬考成績後，會從收錄的 ${list.length} 校挑出夢幻、可以拚、穩上各一校。</p></div>`;
-        const picks=pick3(list,scores);
-        const rest=list.length-picks.length;
-        return `<div class="dept"><b>${n}</b><ul class="schools">${picks.map(({sch,pl,role})=>{
-          const tag=`<span class="pl ${CAT[pl.cat][1]}">${CAT[pl.cat][0]}</span>`;
-          const why=pl.cat==="std"?`<small class="why-std">${pl.fails.join("；")}</small>`:"";
-          return `<li><span>${role?`<em class="role">${role}</em>`:""}${sch}${why}</span>${tag}</li>`;}).join("")}</ul>${rest>0?`<p class="more">還有 ${rest} 校，<a href="${SITE}/gsat-check" data-cta="gsat">到落點快查看全部</a></p>`:""}</div>`;}).join("")}</div>
+      ${deptsOf(g,k)}
     </article>`;}).join("");
   const opt=k=>`<option value="">未考</option>`+Array.from({length:16},(_,v)=>`<option value="${v}"${scores&&scores[k]===v?" selected":""}>${v}</option>`).join("");
   const scorePanel=`
@@ -1335,7 +1426,7 @@ function renderResult(){
         <p class="muted">第一題固定問拿手科目。之後每一步，系統計算題庫裡每一題「問了之後能降低多少不確定性」，挑最高的一題；同一面向最多問 ${PER_DIM} 次，避免重複。第一名機率達 ${STOP_P*100}% 且已答 ${MIN_Q} 題，或答滿 ${MAX_Q} 題就停止。</p>
         <div class="bars">${r.map((x,k)=>`<div class="bar${k===0?" lead":""}"><span>${short(GROUPS[x.i].n)}</span><span class="track"><i style="width:${(x.v*100).toFixed(1)}%"></i></span><span class="v">${pct(x.v)}</span></div>`).join("")}</div>
         <div class="tablewrap"><table class="log"><thead><tr><th>#</th><th>題型</th><th>題目</th><th>回答</th></tr></thead><tbody>
-          ${answers.map((x,k)=>{const [ty,q,a]=answerText(x);return `<tr><td class="mono">${k+1}</td><td>${ty}</td><td>${q}</td><td>${a}</td></tr>`;}).join("")}
+          ${answers.map((x,k)=>{const [ty,q,a]=answerText(x);return `<tr><td class="mono">${k+1}</td><td>${ty}</td><td>${q}</td><td>${a}</td></tr>`;}).join("")}${followRows()}
         </tbody></table></div>
       </div>
     </details>
@@ -1355,11 +1446,13 @@ function renderResult(){
     renderResult();
     const c=byId("cards"); if(c) c.scrollIntoView({behavior:"smooth",block:"start"});
   };
-  byId("again").onclick=()=>{clearShare();answers=[];scores=null;renderIntro();toTop();};
+  byId("again").onclick=()=>{clearShare();follow=null;answers=[];scores=null;renderIntro();toTop();};
   app.querySelectorAll("[data-cta]").forEach(a=>a.addEventListener("click",()=>track("quiz_cta",a.dataset.cta)));
   const sh=byId("share"); if(sh) sh.onclick=()=>shareResult(sh);
-  const mine=byId("mine"); if(mine) mine.onclick=()=>{clearShare();answers=[];scores=null;track("quiz_start","shared");renderIntro();toTop();};
-  byId("backq").onclick=()=>{clearShare();navDir="back";answers.pop();renderStep();toTop();};
+  const fs=byId("followStart"); if(fs) fs.onclick=()=>startFollow(GROUPS[r[0].i].n);
+  const fr=byId("followRedo"); if(fr) fr.onclick=()=>startFollow(GROUPS[r[0].i].n);
+  const mine=byId("mine"); if(mine) mine.onclick=()=>{clearShare();follow=null;answers=[];scores=null;track("quiz_start","shared");renderIntro();toTop();};
+  byId("backq").onclick=()=>{clearShare();follow=null;navDir="back";answers.pop();renderStep();toTop();};
 }
 const onHash=()=>{ if(loadShared()) toTop(); };
 window.addEventListener("hashchange",onHash);
