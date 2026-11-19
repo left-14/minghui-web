@@ -1373,7 +1373,7 @@ function renderIntro(){
       <div class="type"><b>做過的事</b>過去一年實際做過什麼，比感覺更準</div>
     </div>
   </div></section>`;
-  byId("start").onclick=()=>{clearShare();track("quiz_start","");answers=[];prevProg=0;prevBars={};lastShellN=-1;lastSubj={strong:[],weak:[]};renderStep();};
+  byId("start").onclick=()=>{clearShare();follow=null;track("quiz_start","");answers=[];prevProg=0;prevBars={};lastShellN=-1;lastSubj={strong:[],weak:[]};renderStep();};
 }
 
 function railHTML(post){
@@ -1489,6 +1489,280 @@ function pick3(list,sc){
   for(const grp of order) for(const x of grp){ if(out.length<3&&!out.includes(x)) out.push(x); }
   return out.sort((a,b)=>a.i-b.i).map(x=>({...x,role:""}));
 }
+/* ---------- 追加題：第一名學群再問幾題，把學群裡的學類排先後 ----------
+   18 個學群都有，計分是人工設定，還要給真人測過。題目原稿見「追加題草稿_全部學群.md」。
+   每個選項替幾個學類加分，答完依總分排序。不影響上面推薦學群的算法。 */
+const FOLLOW={"醫藥衛生學群":[
+ {t:"到醫院實習一週，你最想待在哪裡",o:[
+   ["病人身邊，跟病人說話、幫他做檢查或治療",{醫學:1,護理:1,牙醫:1,中醫:1,物理治療:1,職能治療:1,呼吸治療:1,語言治療與聽力:1,視光:1,醫學影像放射:.3}],
+   ["檢驗室、藥局或放射科，處理檢體、藥品或儀器",{醫學檢驗:1.2,藥學:1.2,醫學影像放射:1,牙體技術與口腔衛生:.6}],
+   ["動物醫院，照顧生病的貓狗",{獸醫:2.5}]]},
+ {t:"同樣是讓人更健康，你比較想",o:[
+   ["一次幫一個人，把他的問題處理好",{}],
+   ["想辦法讓一整個社區的人少生病",{公共衛生:2,營養:.8}]]},
+ {t:"病人來到你面前，你最想做的是",o:[
+   ["找出他為什麼生病，決定怎麼治療",{醫學:1,中醫:1,牙醫:.8,獸醫:.5,醫學檢驗:.4,醫學影像放射:.4}],
+   ["帶他做運動，練習走路和活動身體",{物理治療:1.2,呼吸治療:.3}],
+   ["陪他重新練習穿衣、吃飯、上學這些日常小事",{職能治療:1.2,護理:.4}],
+   ["待在他身邊照顧，留意他的變化",{護理:1.2}]]},
+ {t:"如果要專門照顧身體的一個部分，你最有興趣的是",o:[
+   ["牙齒和口腔",{牙體技術與口腔衛生:2,牙醫:.8}],
+   ["眼睛和視力",{視光:1.5}],
+   ["說話和聽力",{語言治療與聽力:1.5}],
+   ["呼吸和肺",{呼吸治療:1.5}],
+   ["沒有特定，想照顧整個人",{醫學:.8,護理:.5,中醫:.5,公共衛生:.3,營養:.3,物理治療:.2,職能治療:.2}]]},
+ {t:"讀大學這件事，你比較接近哪一種",o:[
+   ["讀久一點也沒關係，目標是當醫師（包含牙醫、中醫、獸醫）",{醫學:1,牙醫:1,中醫:1,獸醫:.6}],
+   ["想讀四年左右，考到證照就開始工作",{護理:.5,醫學檢驗:.5,醫學影像放射:.5,物理治療:.5,職能治療:.5,公共衛生:.5,營養:.5,呼吸治療:.5,牙體技術與口腔衛生:.5,語言治療與聽力:.5,視光:.5}]]},
+ {t:"下面哪個主題，你最想花時間多了解",o:[
+   ["生病的原因和治療方法",{醫學:.6,牙醫:.2,中醫:.2,獸醫:.2}],
+   ["藥怎麼在身體裡發揮作用",{藥學:1.3,醫學檢驗:.3}],
+   ["中藥和針灸怎麼調理身體",{中醫:1.5}],
+   ["X 光、超音波這些影像怎麼看見身體內部",{醫學影像放射:1.5}],
+   ["怎麼從血液或檢體找出生病的原因",{醫學檢驗:1.5}],
+   ["吃什麼、怎麼吃對身體比較好",{營養:2,公共衛生:.3}],
+   ["傳染病怎麼傳開、怎麼預防",{公共衛生:1.5}]]}
+],
+ "資訊學群":[
+ {t:"團隊要做一個 App，你比較想負責",o:[
+   ["寫程式，把功能真的做出來",{"資訊工程":1.2}],
+   ["想清楚使用者需要什麼，怎麼讓它幫公司賺錢",{"資訊管理":1.2}]]},
+ {t:"同樣是用電腦解決問題，你比較喜歡",o:[
+   ["想演算法，讓程式跑得更快、更聰明",{"資訊工程":1}],
+   ["分析資料，幫大家做決定",{"資訊管理":1}]]}
+ ],
+ "工程學群":[
+ {t:"你最想親手做出哪一種東西",o:[
+   ["電路、電力或通訊設備",{"電機工程":1.4,"光電工程":.3}],
+   ["晶片和半導體元件",{"電子與半導體":1.4,"電機工程":.3}],
+   ["機器、車子或機器人",{"機械工程":1.4,"電機工程":.3}],
+   ["橋、大樓或道路",{"土木工程":1.6}],
+   ["新材料或化學產品，像電池、塑膠",{"化學工程":1.2,"材料工程":1.2}],
+   ["醫療器材，像義肢或檢測儀器",{"醫學工程":1.6}]]},
+ {t:"下面哪一種問題你最想弄懂",o:[
+   ["雷射、光纖和顯示器怎麼運作",{"光電工程":1.6}],
+   ["怎麼讓工廠或流程跑得更有效率",{"工業工程":1.8}],
+   ["物質在很小的尺度下怎麼變化",{"材料工程":.9,"化學工程":.7,"電子與半導體":.6}],
+   ["力和結構怎麼撐住重量",{"土木工程":.8,"機械工程":.8}],
+   ["核能、能源這類橫跨好幾個領域的問題",{"工程科學":1.8}]]},
+ {t:"以後你最想在哪裡工作",o:[
+   ["晶圓廠或科技公司",{"電子與半導體":1.2,"電機工程":.3,"光電工程":.6}],
+   ["電力公司、通訊公司或自動化設備廠",{"電機工程":1.2}],
+   ["工地或戶外",{"土木工程":1.2}],
+   ["石化廠或化學工廠",{"化學工程":1.2}],
+   ["工廠產線或研發實驗室",{"材料工程":.6,"機械工程":.6,"工業工程":.6}],
+   ["醫院或醫療器材公司",{"醫學工程":1.2}]]},
+ {t:"選科系這件事，你比較接近哪一種",o:[
+   ["已經知道想讀哪個方向",{}],
+   ["還不確定，想大一大二先多試幾種",{"不分系學士班":3}],
+   ["想先打好數學和物理基礎，再應用到不同工程",{"工程科學":1.2}]]}
+ ],
+ "數理化學群":[
+ {t:"下面哪一種內容你最喜歡",o:[
+   ["證明和推導，弄懂一件事為什麼成立",{"數學":1.4}],
+   ["力、電、光這些現象背後的規則",{"物理":1.4}],
+   ["物質怎麼反應、變成新的東西",{"化學":1.4}],
+   ["從一大堆數據裡找出規律",{"統計":1.4}]]},
+ {t:"做實驗或作業時，你比較喜歡",o:[
+   ["在實驗室動手調配、觀察變化",{"化學":1,"物理":.4}],
+   ["用紙筆或電腦算出結果",{"數學":.8,"統計":.6,"物理":.4}]]},
+ {t:"以後你比較想做",o:[
+   ["研究自然界最基本的問題",{"物理":.8,"數學":.6,"化學":.4}],
+   ["幫公司或政府分析資料",{"統計":1.2,"數學":.3}]]}
+ ],
+ "生命科學學群":[
+ {t:"你比較好奇哪一種問題",o:[
+   ["生物怎麼演化、生態系怎麼運作",{"生命科學":1.4}],
+   ["怎麼用基因或細胞技術做出新產品",{"生物科技":1.4}]]},
+ {t:"以後你比較想",o:[
+   ["做研究，弄懂生命的原理",{"生命科學":1}],
+   ["到生技公司開發疫苗或檢測工具",{"生物科技":1}]]}
+ ],
+ "生物資源學群":[
+ {t:"你最想照顧或研究哪一種生物",o:[
+   ["作物、花和果樹",{"農藝與園藝":1.4,"植物病蟲害":.3}],
+   ["牛、豬、雞這些家畜家禽",{"動物科學":1.6}],
+   ["森林和樹木",{"森林":1.6}],
+   ["魚、蝦和其他水中生物",{"水產":1.6}],
+   ["昆蟲，或讓植物生病的微生物",{"植物病蟲害":1.6}]]},
+ {t:"你比較想在哪裡工作",o:[
+   ["田裡、山上或海邊",{"農藝與園藝":.6,"森林":.6,"水產":.6,"動物科學":.4}],
+   ["實驗室，分析土壤、肥料或食品成分",{"農業化學":1.2,"食品科學":.8}]]},
+ {t:"下面哪件事你最有興趣",o:[
+   ["開發新食品，確保吃的東西安全",{"食品科學":1.6}],
+   ["改良土壤和肥料，讓作物長得更好",{"農業化學":1.4,"農藝與園藝":.4}],
+   ["保護自然環境和生態",{"森林":.8,"水產":.4,"植物病蟲害":.3}]]}
+ ],
+ "地球與環境學群":[
+ {t:"你最想研究哪一種現象",o:[
+   ["天氣、颱風和氣候變遷",{"大氣科學":1.6}],
+   ["地震、火山和岩石",{"地質與地球科學":1.6}],
+   ["海洋和海裡的生物",{"海洋科學":1.6}],
+   ["一個地方的人和環境怎麼互相影響",{"地理與環境資源":1.6}]]},
+ {t:"你比較想做哪一件事",o:[
+   ["處理汙水、空氣汙染和廢棄物",{"環境工程":1.8}],
+   ["用衛星、空拍和地圖記錄地表",{"測量與空間資訊":1.6,"地理與環境資源":.4}],
+   ["做研究，解釋自然現象",{"大氣科學":.5,"地質與地球科學":.5,"海洋科學":.5}]]},
+ {t:"念書的時候，你比較喜歡",o:[
+   ["數學和物理算得多一點",{"大氣科學":.4,"測量與空間資訊":.6,"環境工程":.6}],
+   ["到野外實地調查多一點",{"地質與地球科學":.6,"地理與環境資源":.6,"海洋科學":.4}]]}
+ ],
+ "建築與設計學群":[
+ {t:"你最想設計哪一種東西",o:[
+   ["房子和室內空間",{"建築":1.6}],
+   ["拿在手上用的產品，像椅子、耳機",{"工業設計":1.6}],
+   ["海報、品牌標誌或 App 畫面",{"視覺傳達設計":1.6}],
+   ["衣服和布料",{"服裝設計":1.8}],
+   ["公園、庭園和戶外空間",{"景觀設計":1.6}]]},
+ {t:"你比較想處理多大的範圍",o:[
+   ["一件作品，把細節做到好",{"工業設計":.4,"視覺傳達設計":.4,"服裝設計":.4}],
+   ["一整個城市或社區要怎麼規劃",{"都市計畫":2.4}]]},
+ {t:"你比較接近哪一種",o:[
+   ["喜歡把設計跟科技或程式結合",{"跨領域設計":2,"工業設計":.3,"視覺傳達設計":.3}],
+   ["喜歡畫圖、做模型，親手把想法做出來",{"建築":.5,"工業設計":.5,"景觀設計":.3,"服裝設計":.3}]]}
+ ],
+ "藝術學群":[
+ {t:"你最想花時間練習的是",o:[
+   ["畫畫、雕塑或其他視覺創作",{"美術":1.6}],
+   ["樂器或唱歌",{"音樂":1.6}],
+   ["表演、編劇或舞台幕後",{"戲劇":1.6}]]},
+ {t:"創作的時候，你比較喜歡",o:[
+   ["一個人專心完成作品",{"美術":.6,"音樂":.4}],
+   ["跟一群人一起排練、完成演出",{"戲劇":.8,"音樂":.4}]]}
+ ],
+ "社會與心理學群":[
+ {t:"你比較好奇哪一種問題",o:[
+   ["一個人為什麼會有這樣的想法和情緒",{"心理":1.4}],
+   ["社會為什麼會有貧富差距這類現象",{"社會":1.4}],
+   ["怎麼實際幫助遇到困難的家庭",{"社會工作":1.4}]]},
+ {t:"你比較想做哪一種事",o:[
+   ["設計實驗和問卷，研究人的行為",{"心理":.8,"社會":.4}],
+   ["到第一線陪伴、協助需要幫忙的人",{"社會工作":1,"心理":.3}]]}
+ ],
+ "大眾傳播學群":[
+ {t:"你最想做哪一種工作",o:[
+   ["跑新聞、拍影片或做廣告",{"新聞、廣告、廣電":1.6}],
+   ["做網站、互動媒體或數位內容",{"傳播科技":1.6}],
+   ["整理資料和知識，讓別人找得到",{"圖書資訊":1.6}]]},
+ {t:"你比較喜歡待在哪裡",o:[
+   ["站在前面說故事，讓很多人看見",{"新聞、廣告、廣電":.8}],
+   ["在幕後用科技把內容做出來",{"傳播科技":.8,"圖書資訊":.4}]]}
+ ],
+ "外語學群":[
+ {t:"你最想深入學哪一種語言",o:[
+   ["英文",{"英語文":2}],
+   ["日文",{"日語文":2}],
+   ["韓文、西班牙文、德文這些其他語言",{"其他外語":2}]]}
+ ],
+ "文史哲學群":[
+ {t:"你最喜歡讀哪一種東西",o:[
+   ["古典詩詞、小說和文章",{"中國文學":1.6}],
+   ["歷史事件和人物故事",{"歷史":1.6}],
+   ["討論人生意義、什麼是對錯的文章",{"哲學":1.6}]]},
+ {t:"寫報告時，你比較想",o:[
+   ["分析一篇文章為什麼寫得好",{"中國文學":.8}],
+   ["找史料，還原當時發生的事",{"歷史":.8}],
+   ["把一個問題的道理想清楚，講出論證",{"哲學":.8}]]},
+ {t:"選科系這件事，你比較接近哪一種",o:[
+   ["想專心深入一個領域",{"中國文學":.3,"歷史":.3,"哲學":.3}],
+   ["什麼都想學一點，之後再決定",{"人文社會學士班":2.6}]]}
+ ],
+ "教育學群":[
+ {t:"你最想教哪一群人",o:[
+   ["國中或高中學生",{"教育":1.4}],
+   ["有學習困難或身心障礙的孩子",{"特殊教育":1.6}],
+   ["還沒上小學的幼兒",{"幼兒教育":1.6}]]},
+ {t:"你比較想做哪一種事",o:[
+   ["研究怎麼教得更好、學校怎麼辦得更好",{"教育":.8}],
+   ["陪著一個孩子，照他的需要調整教法",{"特殊教育":.8,"幼兒教育":.4}]]}
+ ],
+ "法政學群":[
+ {t:"你最想做哪一種工作",o:[
+   ["當律師、法官或檢察官",{"法律":1.6}],
+   ["參與選舉，研究政府怎麼運作",{"政治":1.4}],
+   ["代表國家跟其他國家談判",{"外交":1.8,"政治":.3}],
+   ["在政府機關規劃和推動政策",{"公共行政":1.4}],
+   ["處理土地、房地產和都市發展",{"地政":1.6}]]},
+ {t:"你比較喜歡哪一種事",o:[
+   ["讀條文、分析案例，判斷誰有道理",{"法律":.8}],
+   ["討論國內和國際大事",{"政治":.6,"外交":.6}],
+   ["實際動手解決公共問題",{"公共行政":.6,"地政":.4}]]}
+ ],
+ "管理學群":[
+ {t:"你最想管理哪一種事",o:[
+   ["一家公司的行銷和營運",{"企業管理":1.4}],
+   ["跨國生意和海外市場",{"國際企業":1.6}],
+   ["貨物、航運和交通",{"運輸與物流":1.8}],
+   ["公司裡的人，像招募和培訓",{"人力資源":1.8}],
+   ["醫院或健康產業",{"醫務管理":1.8}]]},
+ {t:"你比較接近哪一種",o:[
+   ["想創業或當主管",{"企業管理":.8,"國際企業":.3}],
+   ["喜歡把流程和制度安排好",{"運輸與物流":.4,"人力資源":.4,"醫務管理":.4}]]}
+ ],
+ "財經學群":[
+ {t:"你最想弄懂哪一件事",o:[
+   ["物價、就業和國家經濟怎麼運作",{"經濟":1.6}],
+   ["股票、投資和銀行",{"財務金融":1.6}],
+   ["一家公司賺多少、帳有沒有問題",{"會計":1.6}],
+   ["政府怎麼收稅、怎麼花錢",{"財政稅務":1.6}],
+   ["保險和風險怎麼計算",{"保險風管":1.6}]]},
+ {t:"處理數字時，你比較喜歡",o:[
+   ["細心核對，把每一筆都弄對",{"會計":.8,"財政稅務":.3}],
+   ["看大趨勢，預測接下來會怎樣",{"經濟":.6,"財務金融":.6}],
+   ["用數學算機率",{"保險風管":.8,"財務金融":.2}]]}
+ ],
+ "遊憩與運動學群":[
+ {t:"你最想做哪一種事",o:[
+   ["自己上場比賽，或當教練",{"體育":1.6}],
+   ["研究怎麼讓運動表現更好、更不容易受傷",{"運動科學":1.6}],
+   ["辦運動比賽，或經營健身房",{"運動與休閒管理":1.6}],
+   ["跟國際運動組織合作，辦國際賽事",{"運動事務":1.8,"運動與休閒管理":.3}],
+   ["帶旅行團，或經營飯店、餐廳",{"觀光休閒":1.8}]]},
+ {t:"你比較喜歡待在哪裡",o:[
+   ["球場、場館或戶外",{"體育":.6,"觀光休閒":.3}],
+   ["實驗室或辦公室",{"運動科學":.4,"運動與休閒管理":.4,"運動事務":.4}]]}
+ ]
+};
+let follow=null; /* {g:學群名稱, ans:[每題選的選項編號]} */
+function followRank(gn,ans){
+  const sc={}; FOLLOW[gn].forEach((q,i)=>{const o=q.o[ans[i]]; if(o) for(const k in o[1]) sc[k]=(sc[k]||0)+o[1][k];});
+  return sc;
+}
+const followDone=gn=>!!(follow&&follow.g===gn&&FOLLOW[gn]&&follow.ans.length===FOLLOW[gn].length);
+function startFollow(gn){ follow={g:gn,ans:[]}; track("quiz_follow_start",gn); navDir="fwd"; renderFollow(); toTop(); }
+function renderFollow(){
+  const qs=FOLLOW[follow.g], n=follow.ans.length;
+  if(n>=qs.length){
+    const best=Object.entries(followRank(follow.g,follow.ans)).sort((a,b)=>b[1]-a[1])[0];
+    track("quiz_follow_complete",best?best[0]:"");
+    renderResult(); const c=byId("cards"); if(c) c.scrollIntoView({block:"start"});
+    return;
+  }
+  const q=qs[n];
+  app.innerHTML=`<section class="band tight"><div class="inner narrow"><div class="qcard solo enter-${navDir}">
+    <div class="qmeta"><span>追加題 · 第 <span class="mono">${n+1}</span> 題，共 ${qs.length} 題</span><span>${follow.g}</span></div>
+    <div class="progress"><i style="width:${(n/qs.length*100).toFixed(1)}%" data-to="${((n+1)/qs.length*100).toFixed(1)}%"></i></div>
+    <div class="qkind">追加題</div>
+    <p class="qtext">${q.t}</p>
+    <div class="choices" role="group" aria-label="選一個">${q.o.map(([txt],i)=>`
+      <button class="opt" id="opt${i+1}" data-f="${i}"><span class="k">${"ABCDEF"[i]}</span><span>${txt}</span></button>`).join("")}
+    </div>
+    <div class="qfoot"><button class="linkbtn" id="back">${n?"上一題":"回到結果"}</button><span class="note">選最接近你的一個。鍵盤 1 到 ${q.o.length} 對應選項</span></div>
+  </div></div></section>`;
+  app.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{
+    if(lock) return; lock=true; b.classList.add("on");
+    setTimeout(()=>{follow.ans.push(+b.dataset.f); lock=false; renderFollow();},180);
+  });
+  byId("back").onclick=()=>{
+    navDir="back";
+    if(n){ follow.ans.pop(); renderFollow(); }
+    else { follow=null; renderResult(); const c=byId("cards"); if(c) c.scrollIntoView({block:"start"}); }
+  };
+}
+function followRows(){
+  if(!follow||!FOLLOW[follow.g]) return "";
+  return follow.ans.map((a,k)=>{const q=FOLLOW[follow.g][k];return `<tr><td class="mono">+${k+1}</td><td>追加題</td><td>${q.t}</td><td>${q.o[a][0]}</td></tr>`;}).join("");
+}
 /* ---------- 下一步：事件記錄、服務推薦、分享 ---------- */
 const SITE="", LINE_URL="https://lin.ee/6uAXvJu";
 /* 只記錄匿名的動作與推薦學群，不送出作答內容與成績 */
@@ -1531,27 +1805,34 @@ function nextHTML(r){
       </div>
     </section>`;
 }
-/* 分享連結：作答寫進網址 # 後面，不含成績。格式 v1.s拿手.w不拿手.q題號x答案 */
+/* 分享連結：作答寫進網址 # 後面，不含成績。格式 v1.s拿手.w不拿手.q題號x答案，答過追加題再加 .f選項編號 */
 const SHARE_V="v1";
 function encodeShare(){
   const s0=answers[0]; if(!s0||s0.type!=="subj") return "";
-  return [SHARE_V,"s"+s0.strong.join("-"),"w"+s0.weak.join("-"),"q"+answers.slice(1).map(x=>x.i+"x"+x.a).join("-")].join(".");
+  const parts=[SHARE_V,"s"+s0.strong.join("-"),"w"+s0.weak.join("-"),"q"+answers.slice(1).map(x=>x.i+"x"+x.a).join("-")];
+  if(follow&&followDone(follow.g)) parts.push("f"+follow.ans.join("-"));
+  return parts.join(".");
 }
 function decodeShare(code){
-  const p=code.split("."); if(p.length!==4||p[0]!==SHARE_V) return null;
+  const p=code.split("."); if(p.length<4||p.length>5||p[0]!==SHARE_V) return null;
+  if(p.length===5&&(p[4][0]!=="f"||!/^f\d(-\d)*$/.test(p[4]))) return null;
   if(p[1][0]!=="s"||p[2][0]!=="w"||p[3][0]!=="q") return null;
   const nums=t=>t?t.split("-").map(Number):[];
   const strong=nums(p[1].slice(1)), weak=nums(p[2].slice(1));
   if(!strong.length||[...strong,...weak].some(i=>!Number.isInteger(i)||i<0||i>=SUBJ.length)) return null;
   const qs=p[3].length>1?p[3].slice(1).split("-").map(t=>t.split("x").map(Number)):[];
   if(qs.some(([i,a])=>!Number.isInteger(i)||i<0||i>=ITEMS.length||![0,1,2].includes(a))) return null;
-  return [{type:"subj",strong,weak},...qs.map(([i,a])=>({type:"q",i,a}))];
+  const out=[{type:"subj",strong,weak},...qs.map(([i,a])=>({type:"q",i,a}))];
+  if(p.length===5) out.f=p[4].slice(1).split("-").map(Number);
+  return out;
 }
 let sharedView=false;
 function loadShared(){
   const m=(location.hash||"").match(/^#r=([\w.\-]+)$/); if(!m) return false;
   const a=decodeShare(m[1]); if(!a) return false;
-  answers=a; scores=null; sharedView=true; resultFresh=true; track("quiz_open_shared",""); renderResult(); return true;
+  answers=a; scores=null; sharedView=true; follow=null;
+  if(a.f){ const gn=GROUPS[ranked(posterior(a))[0].i].n, qs=FOLLOW[gn];
+    if(qs&&a.f.length===qs.length&&a.f.every((v,k)=>v<qs[k].o.length)) follow={g:gn,ans:a.f}; } resultFresh=true; track("quiz_open_shared",""); renderResult(); return true;
 }
 function clearShare(){ sharedView=false; if(location.hash) history.replaceState(null,"",location.pathname+location.search); }
 async function shareResult(btn){
@@ -1568,18 +1849,29 @@ function renderResult(){
   const post=posterior(answers), r=ranked(post), ud=userDims(answers), top=r[0].v;
   const conf=top>=STOP_P?"結果相當明確":(top>=0.4?"結果有方向，但前幾名差距不大":"你的興趣分布很平均，前幾名都值得看看");
   const lvl=v=>v>=0.5?["高度相符","hi"]:v>=0.15?["相符",""]:["可以看看",""];
+  const deptHTML=([n,list],top)=>{
+        if(!scores) return `<div class="dept${top?" top":""}"><b>${n}</b><p class="more">填入模擬考成績後，會從收錄的 ${list.length} 校挑出夢幻、可以拚、穩上各一校。</p></div>`;
+        const picks=pick3(list,scores);
+        const rest=list.length-picks.length;
+        return `<div class="dept${top?" top":""}"><b>${n}</b><ul class="schools">${picks.map(({sch,pl,role})=>{
+          const tag=`<span class="pl ${CAT[pl.cat][1]}">${CAT[pl.cat][0]}</span>`;
+          const why=pl.cat==="std"?`<small class="why-std">${pl.fails.join("；")}</small>`:"";
+          return `<li><span>${role?`<em class="role">${role}</em>`:""}${sch}${why}</span>${tag}</li>`;}).join("")}</ul>${rest>0?`<p class="more">還有 ${rest} 校，<a href="${SITE}/gsat-check" data-cta="gsat">到落點快查看全部</a></p>`:""}</div>`;};
+  const deptsOf=(g,k)=>{
+    const fq=FOLLOW[g.n];
+    if(k===0&&followDone(g.n)){
+      const sc=followRank(g.n,follow.ans), ds=[...g.d].sort((a,b)=>(sc[b[0]]||0)-(sc[a[0]]||0)), top=ds.slice(0,3), rest=ds.slice(3);
+      return `<p class="follow-note">依追加題的回答，這個學群裡最接近你的是${top.map(d=>`「${d[0]}」`).join("")}。${sharedView?"":'<button class="linkbtn" id="followRedo">重新回答追加題</button>'}</p>
+      <div class="depts">${top.map(d=>deptHTML(d,true)).join("")}${rest.length?`<details class="dept-more"><summary>其他 ${rest.length} 個學類</summary><div class="depts">${rest.map(d=>deptHTML(d,false)).join("")}</div></details>`:""}</div>`;
+    }
+    return (k===0&&fq&&!sharedView?`<div class="follow"><p>${g.n}有 ${g.d.length} 個學類。再答 ${fq.length} 題，幫你排出最適合的學類；不答也可以直接往下看。</p><button class="btn" id="followStart">再答 ${fq.length} 題</button></div>`:"")
+      +`<div class="depts">${g.d.map(d=>deptHTML(d,false)).join("")}</div>`;
+  };
   const cards=r.slice(0,3).map((x,k)=>{const g=GROUPS[x.i],[t,c]=lvl(x.v);return `
     <article class="card${k===0?" first":""}" style="--i:${k}">
       <div class="chead"><span class="rank">No.${k+1}</span><h2>${g.n}</h2><span class="level ${c}">${t}</span></div>
       <p class="reason">${reasonFor(x.i,ud)}</p>
-      <div class="depts">${g.d.map(([n,list])=>{
-        if(!scores) return `<div class="dept"><b>${n}</b><p class="more">填入模擬考成績後，會從收錄的 ${list.length} 校挑出夢幻、可以拚、穩上各一校。</p></div>`;
-        const picks=pick3(list,scores);
-        const rest=list.length-picks.length;
-        return `<div class="dept"><b>${n}</b><ul class="schools">${picks.map(({sch,pl,role})=>{
-          const tag=`<span class="pl ${CAT[pl.cat][1]}">${CAT[pl.cat][0]}</span>`;
-          const why=pl.cat==="std"?`<small class="why-std">${pl.fails.join("；")}</small>`:"";
-          return `<li><span>${role?`<em class="role">${role}</em>`:""}${sch}${why}</span>${tag}</li>`;}).join("")}</ul>${rest>0?`<p class="more">還有 ${rest} 校，<a href="${SITE}/gsat-check" data-cta="gsat">到落點快查看全部</a></p>`:""}</div>`;}).join("")}</div>
+      ${deptsOf(g,k)}
     </article>`;}).join("");
   const opt=k=>`<option value="">未考</option>`+Array.from({length:16},(_,v)=>`<option value="${v}"${scores&&scores[k]===v?" selected":""}>${v}</option>`).join("");
   const scorePanel=`
@@ -1633,7 +1925,7 @@ function renderResult(){
         <p class="muted">第一題固定問拿手科目。之後每一步，系統計算題庫裡每一題「問了之後能降低多少不確定性」，挑最高的一題；同一面向最多問 ${PER_DIM} 次，避免重複。第一名機率達 ${STOP_P*100}% 且已答 ${MIN_Q} 題，或答滿 ${MAX_Q} 題就停止。</p>
         <div class="bars">${r.map((x,k)=>`<div class="bar${k===0?" lead":""}"><span>${short(GROUPS[x.i].n)}</span><span class="track"><i style="width:${(x.v*100).toFixed(1)}%"></i></span><span class="v">${pct(x.v)}</span></div>`).join("")}</div>
         <div class="tablewrap"><table class="log"><thead><tr><th>#</th><th>題型</th><th>題目</th><th>回答</th></tr></thead><tbody>
-          ${answers.map((x,k)=>{const [ty,q,a]=answerText(x);return `<tr><td class="mono">${k+1}</td><td>${ty}</td><td>${q}</td><td>${a}</td></tr>`;}).join("")}
+          ${answers.map((x,k)=>{const [ty,q,a]=answerText(x);return `<tr><td class="mono">${k+1}</td><td>${ty}</td><td>${q}</td><td>${a}</td></tr>`;}).join("")}${followRows()}
         </tbody></table></div>
       </div>
     </details>
@@ -1653,11 +1945,13 @@ function renderResult(){
     renderResult();
     const c=byId("cards"); if(c) c.scrollIntoView({behavior:"smooth",block:"start"});
   };
-  byId("again").onclick=()=>{clearShare();answers=[];scores=null;renderIntro();toTop();};
+  byId("again").onclick=()=>{clearShare();follow=null;answers=[];scores=null;renderIntro();toTop();};
   app.querySelectorAll("[data-cta]").forEach(a=>a.addEventListener("click",()=>track("quiz_cta",a.dataset.cta)));
   const sh=byId("share"); if(sh) sh.onclick=()=>shareResult(sh);
-  const mine=byId("mine"); if(mine) mine.onclick=()=>{clearShare();answers=[];scores=null;track("quiz_start","shared");renderIntro();toTop();};
-  byId("backq").onclick=()=>{clearShare();navDir="back";answers.pop();renderStep();toTop();};
+  const fs=byId("followStart"); if(fs) fs.onclick=()=>startFollow(GROUPS[r[0].i].n);
+  const fr=byId("followRedo"); if(fr) fr.onclick=()=>startFollow(GROUPS[r[0].i].n);
+  const mine=byId("mine"); if(mine) mine.onclick=()=>{clearShare();follow=null;answers=[];scores=null;track("quiz_start","shared");renderIntro();toTop();};
+  byId("backq").onclick=()=>{clearShare();follow=null;navDir="back";answers.pop();renderStep();toTop();};
 }
 const onHash=()=>{ if(loadShared()) toTop(); };
 window.addEventListener("hashchange",onHash);

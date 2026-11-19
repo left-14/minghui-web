@@ -224,6 +224,16 @@
 .mq .next-card.next-line .btn:hover{background:#05b04b}
 .mq .dept .more a{color:var(--accent-text);text-underline-offset:3px}
 .mq .pl{display:inline-block;box-sizing:border-box;min-width:6em;text-align:center}
+.mq .follow{background:var(--accent-soft);border:1px solid var(--accent-l);padding:14px 18px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.mq .follow p{flex:1 1 240px;font-size:.92rem;margin:0}
+.mq .follow .btn{padding:10px 20px;font-size:.9rem}
+.mq .follow-note{font-size:.9rem}
+.mq .follow-note .linkbtn{margin-left:6px;font-size:.85rem}
+.mq .dept.top{border-left-color:var(--accent)}
+.mq .dept-more{grid-column:1/-1}
+.mq .dept-more summary{cursor:pointer;font-size:.9rem;font-weight:600;color:var(--accent-text);padding:4px 0}
+.mq .dept-more .depts{margin-top:10px}
+.mq .qcard.solo{max-width:760px;margin:0 auto}
 
 /* 官網整合 */
 .mq{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.7}
